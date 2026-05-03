@@ -2,8 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from address.models import City, Country, State
-from common.format import calculate_age, common_datetime_str
-from common.models import BaseModel
+from base.format import calculate_age, common_datetime_str
+from base.models import BaseModel
 from users.managers import UserManager
 from users.types import RoleType, StatusType
 
