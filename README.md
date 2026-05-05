@@ -1,14 +1,12 @@
-```markdown
 <div align="center">
 
 # 🚀 Modular Django Backend
 
-A modular, scalable Django 5 backend designed for **real-world, growing projects**.  
-Focused on **clean architecture, async processing, WebSockets, Docker**, and <br>
-being actually maintainable when the codebase gets big.
+A production-ready, modular Django 5 backend built for **real-world scalability**.  
+Designed with **clean architecture**, **async processing**, **WebSockets**, and **Docker** —  
+because large codebases should stay maintainable.
 
-⚠️ This project is still under active development.  
-APIs, structure and internals may change.
+⚠️ **Active Development** — APIs and structure may evolve.
 
 ---
 
@@ -22,181 +20,115 @@ APIs, structure and internals may change.
 
 ---
 
-## 🧩 What This Project Is About
+## 📌 About This Project
 
-This repo is my attempt to build a **modular backend** that:
+This backend is built for **real-world, growing projects** with:
 
-- scales beyond just a few apps,
-- stays readable when business logic grows,
-- supports **REST, WebSockets, background jobs, file storage, and Docker** out of the box,
-- can be run **with or without Docker**,
-- and is actually pleasant to work with on a daily basis.
+- ✅ **Domain-based modular architecture** — each feature lives in its own app
+- ✅ **REST + WebSockets** — real-time communication ready
+- ✅ **Async task queue** via Celery + Redis
+- ✅ **Docker-first** — run anywhere with one command
+- ✅ **Clean, maintainable, scalable** code patterns
 
-It’s still a work-in-progress, but the main building blocks are already here.
+Whether you're building an e-commerce platform, learning management system, or real-time chat app — this structure keeps things organized as you scale.
 
 ---
 
-## 🧱 Architecture Overview
+## 🧱 Architecture at a Glance
 
-The project follows a **domain-based modular architecture**.  
-Each domain lives in its own app and owns its data + logic.
-
-```bash
+```
 project
 │
-├── config          # Global settings and service configuration
-├── common          # Shared utilities, base classes, mixins, helpers
+├── config          # Global settings, WSGI/ASGI config
+├── common          # Shared utilities, base classes, mixins
 │
 ├── users           # Auth & user management
-├── profiles        # Extended user profiles
-├── address         # Address and location data
+├── profiles        # Extended profiles
+├── address         # Location data
 │
-├── product         # Products
+├── product         # Product catalog
 ├── cart            # Shopping cart
-├── order           # Orders
-├── invoice         # Invoices & billing
+├── order           # Order processing
+├── invoice         # Billing & invoices
 ├── transaction     # Payment transactions
 │
-├── course          # Courses and learning content
-├── lives           # Live sessions / live content
+├── course          # Learning content
+├── lives           # Live sessions
 │
 ├── blog            # Blog system
-├── notifications   # Notifications (in-app / push / etc.)
+├── notifications   # Push/in-app notifications
 │
-├── chat            # Real-time chat (WebSocket)
+├── chat            # Real-time WebSocket chat
 ├── tickets         # Support tickets
 │
-├── dashboard       # Admin / dashboard APIs
-├── iqplus          # IQPlus-related services
-│
-├── docker-compose.yml
-├── Dockerfile
-├── requirements.txt
-└── manage.py
+├── dashboard       # Admin analytics
+└── iqplus          # IQPlus integration
 ```
 
-Each app generally has:
-
-- `models/`
-- `serializers/`
-- `views/`
-- `urls/`
-- `tasks/`
-- `signals/`
-- `tests/`
-- sometimes `types/` (for enums & typed constants)
-
-Shared / cross-cutting stuff goes into `common/`.
+**Each app follows a consistent pattern:**
+```
+app/
+├── models/
+├── serializers/
+├── views/
+├── urls/
+├── tasks/
+├── signals/
+├── tests/
+└── types/          # Enums & typed constants
+```
 
 ---
 
 ## 🛠 Tech Stack
 
-### Core
-
-- **Django 5**
-- **Django REST Framework**
-- **PostgreSQL**
-
-### Async & Realtime
-
-- **Celery** (background jobs)
-- **Redis** (broker / cache)
-- **Django Channels** + **Daphne** (WebSockets)
-
-### Authentication
-
-- **SimpleJWT** (JWT auth)
-- **Djoser** (auth endpoints)
-
-### Storage
-
-- **MinIO / S3** via `django-storages`
-- Ready for object storage deployments
-
-### Background & Monitoring
-
-- **django-celery-beat**
-- **Flower** (Celery monitoring)
-
-### API Docs
-
-- **drf-spectacular** (OpenAPI / Swagger-style docs)
-
-### Utilities
-
-- `pandas`
-- `openpyxl`
-- `persiantools`
-- `jdatetime`
-- plus some helpers in `common/`
-
-### Deployment
-
-- **Docker / docker-compose**
-- **Gunicorn**
-- **Uvicorn** (ASGI)
+| Category | Technologies |
+|----------|--------------|
+| **Core** | Django 5, Django REST Framework, PostgreSQL |
+| **Async & Realtime** | Celery, Redis, Django Channels, Daphne |
+| **Auth** | SimpleJWT (JWT), Djoser |
+| **Storage** | MinIO / S3 (django-storages) |
+| **Monitoring** | django-celery-beat, Flower |
+| **API Docs** | drf-spectacular (OpenAPI) |
+| **Utils** | pandas, openpyxl, persiantools, jdatetime |
+| **Deployment** | Docker, Gunicorn, Uvicorn |
 
 ---
 
 ## 🐳 Running with Docker (Recommended)
 
-> If you just want to run the whole stack (DB, Redis, app, workers) with one command,  
-> this is the easiest way.
-
-### 1️⃣ Clone the repo
+**One command — full stack (DB, Redis, app, workers):**
 
 ```bash
+# Clone the repo
 git clone https://github.com/your-username/project.git
 cd project
-```
 
-### 2️⃣ Build and start containers
-
-```bash
+# Build and start
 docker compose up --build
-```
 
-This should bring up:
-
-- web app
-- PostgreSQL
-- Redis
-- (optionally) Celery worker / beat / Flower depending on your compose file
-
-### 3️⃣ Apply migrations
-
-```bash
+# Apply migrations (new terminal)
 docker compose exec web python manage.py migrate
-```
 
-### 4️⃣ Create a superuser
-
-```bash
+# Create superuser
 docker compose exec web python manage.py createsuperuser
 ```
 
+That's it. Your backend is live.
+
 ---
 
-## ⚡ Docker: Using a pip Mirror (Faster Installs)
+## ⚡ Docker with Custom Pip Mirror
 
-In the Docker setup, I added support for using a **pip mirror** to speed up package installation  
-or to work better behind restricted networks (e.g. inside Iran or locked-down environments).
+Need faster installs or behind restricted networks? Pass a pip mirror:
 
-You can pass a custom **`PIP_INDEX_URL`** as a build argument.
-
-### 🔧 In `Dockerfile` (conceptually)
-
-```dockerfile
-# Default to the normal PyPI, but allow override via build args
-ARG PIP_INDEX_URL=https://pypi.org/simple
-ENV PIP_INDEX_URL=${PIP_INDEX_URL}
-
-# Later in the build step:
-RUN pip install --no-cache-dir -r requirements.txt
+```bash
+docker build \
+  --build-arg PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple \
+  -t my-django-backend .
 ```
 
-### 🚀 Using it with `docker compose`
+Or in `docker-compose.yml`:
 
 ```yaml
 services:
@@ -207,156 +139,139 @@ services:
         PIP_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-or from the CLI:
-
-```bash
-docker build \
-  --build-arg PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple \
-  -t my-django-backend .
-```
-
-If you **don’t** set `PIP_INDEX_URL`, it falls back to the normal PyPI index.  
-If you **do** set it, all `pip install` calls inside Docker will use your mirror and  
-package installation usually becomes much faster ✅
+> Falls back to official PyPI if not specified.
 
 ---
 
 ## 💻 Running Without Docker
 
-If you prefer to run things locally without containers, that’s also supported.
-
-### 1️⃣ Create and activate a virtualenv
-
 ```bash
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-### 2️⃣ Install dependencies
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
-```
 
-### 3️⃣ Set up environment variables
-
-Create a `.env` file in the project root. For example:
-
-```env
+# Set up .env file
+cat > .env << EOF
 DEBUG=True
 SECRET_KEY=your-secret-key
 DATABASE_URL=postgres://user:password@localhost:5432/db_name
 REDIS_URL=redis://localhost:6379/0
-```
+EOF
 
-(You can adapt the values to your own setup.)
-
-### 4️⃣ Apply migrations
-
-```bash
+# Migrate and run
 python manage.py migrate
-```
-
-### 5️⃣ Run the development server
-
-```bash
 python manage.py runserver
 ```
 
 ---
 
-## 🔄 Celery & Background Workers
-
-To run background tasks and scheduled jobs, start Celery:
-
-### Worker
+## 🔄 Background Workers (Celery)
 
 ```bash
+# Worker
 celery -A config worker -l info
-```
 
-### Beat (scheduler)
-
-```bash
+# Scheduler (beat)
 celery -A config beat -l info
-```
 
-### Flower (monitoring)
-
-```bash
+# Monitoring (Flower)
 celery -A config flower
 ```
 
-You can also wire these into Docker via separate services in `docker-compose.yml`.
-
 ---
 
-## 🔌 WebSockets & Realtime Features
+## 🔌 WebSockets & Realtime
 
-WebSocket support is implemented using **Django Channels** (+ ASGI).
+Powered by **Django Channels** + ASGI. Features include:
 
-Some realtime features:
-
-- 💬 Chat
-- 🎫 Live ticket updates
+- 💬 Live chat messaging
+- 🎫 Real-time ticket updates
 - 🔔 Instant notifications
 
-In production, this is meant to run behind **Daphne/Uvicorn** and a reverse proxy (like Nginx).
+Production uses **Daphne/Uvicorn** behind Nginx.
 
 ---
 
-## 🧪 Tests
-
-The project uses **pytest**.
-
-Run all tests with:
+## 🧪 Testing
 
 ```bash
 pytest
 ```
 
-You can of course extend and organize tests inside each app’s `tests/` module.
+Tests are organized per app in `tests/` directories.
 
 ---
 
 ## 📦 Fixtures (Sample Data)
 
-Some apps include fixtures for easier local development, e.g.:
-
-- `address`
-- `blog`
-- `course`
-- `product`
-- `order`
-- `iqplus`
-- `lives`
-- etc.
-
-You can load a fixture like this:
+Load pre-defined data for local development:
 
 ```bash
-python manage.py loaddata fixture_name.json
+python manage.py loaddata address/fixtures/address.json
+python manage.py loaddata product/fixtures/products.json
+python manage.py loaddata blog/fixtures/posts.json
 ```
+
+Available fixtures for most domains.
 
 ---
 
-## 🧠 A Few Architecture Notes
+## 🧠 Design Philosophy
 
-- Business logic tends to live in **services** / **tasks**, not directly in views.
-- `types/` (when present) are used for enums and strongly-typed constants.
-- `common/` is where shared utilities live: custom pagination, base views, permissions, exceptions, etc.
-- Settings are split by environment (e.g. development / production / local) for cleaner deployment.
+| Principle | Implementation |
+|-----------|----------------|
+| **Business logic** | Lives in `services/` or `tasks/`, not views |
+| **Type safety** | `types/` for enums & constants |
+| **Reusability** | `common/` for shared utilities (pagination, base views, permissions) |
+| **Environment config** | Settings split by environment (dev/prod/local) |
 
 ---
 
 ## 📌 Project Status
 
-- ✅ Core structure and main apps are in place  
-- 🛠 Features are being actively developed and refined  
-- 🔄 Expect breaking changes while things evolve  
+| Area | Status |
+|------|--------|
+| Core structure | ✅ Complete |
+| Main apps | ✅ In place |
+| Feature development | 🛠 Active |
+| Stability | 🔄 Breaking changes possible |
 
 ---
 
+## 🤝 About the Developer
 
-Feel free to use, modify, and adapt it to your own projects.
-```
+<div align="center">
+  <img src="https://img.shields.io/badge/Backend-Django%20%26%20FastAPI-blue?style=flat-square" />
+  <img src="https://img.shields.io/badge/Realtime-WebSockets%20%7C%20Chat-brightgreen?style=flat-square" />
+  <img src="https://img.shields.io/badge/Auth-JWT%20%7C%20OTP-orange?style=flat-square" />
+</div>
+
+**Backend developer** specializing in:
+
+- 🚀 **Django & FastAPI** — scalable APIs
+- 💬 **Realtime systems** — WebSockets, chat, live communication
+- 🔐 **Authentication** — OTP, JWT, token-based security
+- 💰 **Financial modules** — billing, invoicing, wallet systems
+- 🐳 **DevOps** — Docker, Linux, production deployments
+- 🤖 **AI & LLM** — collaboration on intelligent systems
+
+> **Passionate about clean, maintainable, and scalable code.**
+
+---
+
+## 📜 License
+
+**MIT License** — Use it, modify it, adapt it freely.
+
+---
+
+<div align="center">
+
+⭐ **Star this repo** if you find it useful — it helps a lot!
+
+🐛 **Issues & PRs** welcome — let's build better backends together.
+
+</div>
