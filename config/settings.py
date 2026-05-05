@@ -44,6 +44,8 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
+    "core",
+    "address"
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -57,16 +59,15 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "common.middleware.CurrentUserMiddleware",
+    "common.middleware.CurrentUserMiddleware", 
     "common.middleware.ExceptionLoggingMiddleware",
-    "config.services.logging.RequestLoggingMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "auditlog.middleware.AuditlogMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
 
-AUTH_USER_MODEL = "core.User"
+AUTH_USER_MODEL = "core.BaseUser"
 
 TEMPLATES = [
     {
