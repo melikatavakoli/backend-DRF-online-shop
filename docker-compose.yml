@@ -1,28 +1,24 @@
 services:
   postgres:
     image: docker.arvancloud.ir/postgres:17
-    pull_policy: never
-    container_name: postgres-db
+    container_name: container-name
     environment:
-      POSTGRES_DB: zanko_back
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_HOST: postgres-db
-      POSTGRES_PORT: 5432
+      POSTGRES_DB: db_name
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: db_pass
     ports:
-      - "55432:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d zanko_back"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U postgres -d online_shop_db"]
+      interval: 5s
       timeout: 5s
-      retries: 5
-
+      retries: 10
   redis:
     image: docker.arvancloud.ir/redis:7-alpine
-    container_name: redis-cache
+    container_name: cont_name
     ports:
       - "6379:6379"
     volumes:
@@ -36,19 +32,17 @@ services:
 
   web:
     build: .
-    container_name: django_app
+    container_name: cont_name
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
-    env_file:
-      - .env
+      - "8001:8001"
     environment:
-      POSTGRES_HOST: postgres-db
+      POSTGRES_HOST: test
       POSTGRES_PORT: 5432
-      POSTGRES_DB: zanko_back
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: test
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
       REDIS_HOST: redis
       REDIS_PORT: 6379
     depends_on:
