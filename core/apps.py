@@ -7,4 +7,4 @@ class UsersConfig(AppConfig):
     verbose_name = "core"
 
     def ready(self):
-        from users import signals
+        from core import signals
