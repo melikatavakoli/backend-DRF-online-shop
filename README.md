@@ -28,6 +28,7 @@ Perfect for e-commerce platforms, learning management systems, or real-time chat
 ## 🧱 Architecture at a Glance
 
 ```
+
 project
 │
 ├── config          # Global settings, WSGI/ASGI config
@@ -49,6 +50,7 @@ project
 ├── tickets         # Support tickets
 │
 ├── dashboard       # Admin analytics
+
 ```
 
 ---
