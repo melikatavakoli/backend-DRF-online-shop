@@ -1,3 +1,7 @@
+Here's the **complete README in English** only, fully cleaned and organized:
+
+---
+
 <div align="center">
 
 # 🚀 Modular Django Backend
@@ -200,6 +204,17 @@ Available fixtures for most domains.
 
 ---
 
+## 🧠 Design Philosophy
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Business logic** | Lives in `services/` or `tasks/`, not views |
+| **Type safety** | `types/` for enums & constants |
+| **Reusability** | `common/` for shared utilities (pagination, base views, permissions) |
+| **Environment config** | Settings split by environment (dev/prod/local) |
+
+---
+
 ## 📌 Project Status
 
 | Area | Status |
@@ -218,6 +233,23 @@ Available fixtures for most domains.
   <img src="https://img.shields.io/badge/Realtime-WebSockets%20%7C%20Chat-brightgreen?style=flat-square" />
   <img src="https://img.shields.io/badge/Auth-JWT%20%7C%20OTP-orange?style=flat-square" />
 </div>
+
+**Backend developer** specializing in:
+
+- 🚀 **Django & FastAPI** — scalable APIs
+- 💬 **Realtime systems** — WebSockets, chat, live communication
+- 🔐 **Authentication** — OTP, JWT, token-based security
+- 💰 **Financial modules** — billing, invoicing, wallet systems
+- 🐳 **DevOps** — Docker, Linux, production deployments
+- 🤖 **AI & LLM** — collaboration on intelligent systems
+
+> **Passionate about clean, maintainable, and scalable code.**
+
+---
+
+## 📄 License
+
+This project is open source and available under the MIT License.
 
 ---
 
