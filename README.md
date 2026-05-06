@@ -188,4 +188,3 @@ python manage.py loaddata blog/fixtures/posts.json
 🐛 **Issues & PRs** welcome.
 
 </div>
-```
