@@ -6,34 +6,51 @@ from rest_framework import serializers
 User = get_user_model()
 
 
-class BaseModelSerializer(serializers.ModelSerializer):
+class GenericModelSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
-    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
-    updated_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    created_by = serializers.SerializerMethodField()
+    updated_by = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
     updated_at = serializers.SerializerMethodField()
-    can_delete = serializers.SerializerMethodField()
+    _created_by = serializers.SerializerMethodField()
+    _updated_by = serializers.SerializerMethodField()
+    can_delete = serializers.ReadOnlyField()
 
     class Meta:
-        fields = ("id", "created_by", "updated_by", "created_at", "updated_at", "can_delete")
+        model = None
+        fields = ( "id","_created_by","created_by","_updated_by","updated_by","created_at","updated_at","can_delete",)
         read_only_fields = fields
 
-    def to_internal_value(self, data):
-        if isinstance(data, dict):
-            data = data.copy()
-            for name, field in self.fields.items():
-                if name in data and data[name] == "" and isinstance(field, serializers.CharField):
-                    data[name] = None
-        return super().to_internal_value(data)
+    def get_created_by(self, obj):
+        user = getattr(obj, "_created_by", None)
+        if not user or hasattr(user, "all"):
+            return None
+        return f"{user.first_name} {user.last_name}".strip() or user.mobile
 
-    @extend_schema_field(serializers.CharField)
+    def get_updated_by(self, obj):
+        user = getattr(obj, "_updated_by", None)
+        if not user or hasattr(user, "all"):
+            return None
+        return f"{user.first_name} {user.last_name}".strip() or user.mobile
+
+    def get__created_by(self, obj):
+        user = getattr(obj, "_created_by", None)
+        if not user or hasattr(user, "all"):
+            return None
+        return str(user.id)
+
+    def get__updated_by(self, obj):
+        user = getattr(obj, "_updated_by", None)
+        if not user or hasattr(user, "all"):
+            return None
+        return str(user.id)
+
     def get_created_at(self, obj):
-        return obj.created_at_display
+        return getattr(obj, "created_at", None)
 
-    @extend_schema_field(serializers.CharField)
     def get_updated_at(self, obj):
-        return obj.updated_at_display
-
+        return getattr(obj, "updated_at", None)
+    
     @extend_schema_field(serializers.BooleanField)
     def get_can_delete(self, obj):
         return getattr(obj, "can_delete", False)
