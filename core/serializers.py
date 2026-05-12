@@ -1,29 +1,25 @@
 import logging
 import random
 import string
-
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils import timezone
 from django_redis import get_redis_connection
 from rest_framework import serializers
-
-from common.serializers import BaseModelSerializer
-from core.tasks import send_verification_sms
+from common.serializers import GenericModelSerializer
+from core.tasks import send_registry_sms, send_verification_sms
 from core.types import RoleType, StatusType
-from core.utils import record_login_attempt
 
 User = get_user_model()
-
 logger = logging.getLogger(__name__)
 
 
-class UserListSerializer(BaseModelSerializer):
+class UserListSerializer(GenericModelSerializer):
     full_name = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
-        fields = BaseModelSerializer.Meta.fields + (
+        fields = GenericModelSerializer.Meta.fields + (
             "mobile",
             "full_name",
             "role",
@@ -44,24 +40,18 @@ class RegisterSerializer(serializers.Serializer):
         code = data.get("code")
         password = data.get("password")
         re_password = data.get("re_password")
-
         if not (mobile.isdigit() and len(mobile) == 11):
             raise serializers.ValidationError("فرمت شماره موبایل نادرست است.")
-
         if password != re_password:
             raise serializers.ValidationError("رمز عبور مطابقت ندارد.")
-
         if User.objects.filter(mobile=mobile).exists():
             raise serializers.ValidationError("این شماره قبلاً ثبت شده است.")
-
         redis_conn = get_redis_connection("default")
         stored_code = redis_conn.get(f"verification_code:{mobile}")
-        
         if not stored_code:
             raise serializers.ValidationError("کد تأیید یافت نشد.")
         if stored_code.decode("utf-8") != code:
             raise serializers.ValidationError("کد تأیید اشتباه است.")
-
         return data
 
     @transaction.atomic
@@ -94,27 +84,29 @@ class SendOTPSerializer(serializers.Serializer):
         mobile = attrs["mobile"]
         mode = attrs["mode"]
         user_exists = User.objects.filter(mobile=mobile).exists()
-
         if mode == "register" and user_exists:
             raise serializers.ValidationError("این شماره قبلاً ثبت‌نام شده است.")
         if mode in ["login", "forget_password"] and not user_exists:
             raise serializers.ValidationError("این شماره یافت نشد.")
-
         return attrs
 
     def create(self, validated_data):
         mobile = validated_data["mobile"]
+        mode = validated_data["mode"]
         verification_code = "".join(random.choices(string.digits, k=5))
         redis_key = f"verification_code:{mobile}"
-
         try:
             redis_conn = get_redis_connection("default")
             redis_conn.setex(redis_key, 300, verification_code)
-            send_verification_sms.delay(mobile, verification_code)
+            if mode == "login":
+                send_verification_sms.delay(mobile, verification_code)
+            elif mode == "register":
+                send_registry_sms.delay(mobile, verification_code)
+            elif mode == "forget_password":
+                send_verification_sms.delay(mobile, verification_code)
         except Exception as e:
             logger.error(f"OTP failed for {mobile}: {e}")
             raise serializers.ValidationError("ارسال کد تأیید ناموفق بود.")
-
         return validated_data
 
 
@@ -125,27 +117,19 @@ class LoginOtpSerializer(serializers.Serializer):
     def validate(self, data):
         mobile = data.get("mobile")
         code = data.get("code")
-        request = self.context.get("request")
-
+        
         try:
             user = User.objects.get(mobile=mobile)
         except User.DoesNotExist:
             raise serializers.ValidationError("کاربری با این شماره یافت نشد.")
-
         if user.status != StatusType.ACTIVE:
-            record_login_attempt(request, user=user, status=StatusType.FAILED)
             raise serializers.ValidationError("حساب کاربری فعال نیست.")
-
         redis_conn = get_redis_connection("default")
         stored_code = redis_conn.get(f"verification_code:{mobile}")
-
         if not stored_code or stored_code.decode() != code:
-            record_login_attempt(request, user=user, status=StatusType.FAILED)
             raise serializers.ValidationError("کد تأیید نامعتبر است.")
-
         redis_conn.delete(f"verification_code:{mobile}")
         data["user"] = user
-        record_login_attempt(request, user=user, status=StatusType.SUCCESS)
         return data
 
 
@@ -156,23 +140,16 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, data):
         mobile = data.get("mobile")
         password = data.get("password")
-        request = self.context.get("request")
-
+        
         try:
             user = User.objects.get(mobile=mobile)
         except User.DoesNotExist:
             raise serializers.ValidationError("کاربری با این شماره یافت نشد.")
-
         if user.status != StatusType.ACTIVE:
-            record_login_attempt(request, user=user, status=StatusType.FAILED)
             raise serializers.ValidationError("حساب کاربری فعال نیست.")
-
         if not user.check_password(password):
-            record_login_attempt(request, user=user, status=StatusType.FAILED)
             raise serializers.ValidationError("رمز عبور نامعتبر است.")
-
         data["user"] = user
-        record_login_attempt(request, user=user, status=StatusType.SUCCESS)
         return data
 
 
@@ -183,7 +160,6 @@ class ChangePasswordSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         user = self.context["request"].user
-
         if not user.check_password(attrs["current_password"]):
             raise serializers.ValidationError("رمز عبور فعلی اشتباه است.")
         if attrs["password"] != attrs["re_password"]:
@@ -209,21 +185,16 @@ class ResetPasswordSerializer(serializers.Serializer):
         code = data["code"]
         password = data["password"]
         re_password = data["re_password"]
-
         if password != re_password:
             raise serializers.ValidationError("رمز عبور مطابقت ندارد.")
-
         try:
             user = User.objects.get(mobile=mobile)
         except User.DoesNotExist:
             raise serializers.ValidationError("کاربری با این شماره یافت نشد.")
-
         redis_conn = get_redis_connection("default")
         stored_code = redis_conn.get(f"verification_code:{mobile}")
-
         if not stored_code or stored_code.decode() != code:
             raise serializers.ValidationError("کد تأیید نامعتبر است.")
-
         data["user"] = user
         return data
 
@@ -231,17 +202,17 @@ class ResetPasswordSerializer(serializers.Serializer):
         user = self.validated_data["user"]
         user.set_password(self.validated_data["password"])
         user.save()
-        
         redis_conn = get_redis_connection("default")
         redis_conn.delete(f"verification_code:{self.validated_data['mobile']}")
         return user
 
-class UserListSerializer(BaseModelSerializer):
+
+class UserListSerializer(GenericModelSerializer):
     full_name = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
-        fields = BaseModelSerializer.Meta.fields + (
+        fields = GenericModelSerializer.Meta.fields + (
             "mobile",
             "full_name",
             "role",

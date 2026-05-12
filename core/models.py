@@ -7,7 +7,7 @@ from common.models import BaseModel
 from common.managers import UserManager
 from core.types import RoleType, StatusType
 
-        
+
 class BaseUser(AbstractUser, BaseModel):
     username = None
     mobile = models.CharField(max_length=11, unique=True)
@@ -52,7 +52,7 @@ class BaseUser(AbstractUser, BaseModel):
     @property
     def is_staff_user(self):
         return self.role in [RoleType.STAFF, RoleType.ADMIN]
-      
+
     def __str__(self):
         return self.full_name or self.mobile
 
