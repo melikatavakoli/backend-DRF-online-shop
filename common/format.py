@@ -50,3 +50,12 @@ def calculate_age(birth_date):
         return None
     today = timezone.localdate()
     return today.year - birth_date.year - int((today.month, today.day) < (birth_date.month, birth_date.day))
+
+def generate_slug(title, Object, pk):
+    base_slug = slugify(title, allow_unicode=True)
+    slug = base_slug
+    counter = 2
+    while slug and Object.objects.filter(slug=slug).exclude(pk=pk).exists():
+        slug = f"{base_slug}-{counter}"
+        counter += 1
+    return slug

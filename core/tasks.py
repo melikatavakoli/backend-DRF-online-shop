@@ -10,6 +10,14 @@ logger = logging.getLogger(__name__)
 OTP USE FOR PRODCUTION ONLY!
 """
 
+"""
+KAVENEGAR OTP TEMPLATE!!!
+
+This template is added only for demonstration purposes.
+It is not functional because an API token must be purchased/activated
+from Kavenegar before it can be used.
+"""
+
 def send_sms(receptor, variables, pattern_code):
     url = f"https://api.kavenegar.com/v1/{settings.KAVENEGAR_API_KEY}/verify/lookup.json"
     payload = {
