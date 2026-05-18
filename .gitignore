@@ -22,7 +22,7 @@ staticfiles/
 celerybeat-schedule
 static
 deploy
-imp-api
+
 # -----------------
 # Ignore all migrations except __init__.py
 # -----------------
