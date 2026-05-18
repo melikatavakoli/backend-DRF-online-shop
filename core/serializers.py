@@ -8,7 +8,7 @@ from django_redis import get_redis_connection
 from rest_framework import serializers
 from common.serializers import GenericModelSerializer
 from core.models import BaseUser
-from core.tasks.otp import send_registry_sms, send_verification_sms
+from .tasks import send_registry_sms, send_verification_sms
 from core.types import RoleType, StatusType
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError as DjangoValidationError

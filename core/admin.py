@@ -15,7 +15,7 @@ class BaseUserAdmin(BaseAdmin):
         "is_email_verified",
         "city",
         "country",
-        "_created_at_display",
+        "created_at_display",
     )
 
     list_filter = (
@@ -36,7 +36,6 @@ class BaseUserAdmin(BaseAdmin):
     )
 
     readonly_fields = (
-        "password__updated_at",
         "_is_deleted",
         "_deleted_at",
     )
@@ -69,7 +68,6 @@ class BaseUserAdmin(BaseAdmin):
         ("Security", {
             "fields": (
                 "password",
-                "password__updated_at",
                 "last_login",
                 "last_login_ip",
             )

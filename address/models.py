@@ -2,6 +2,7 @@ from uuid import uuid4
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from location_field.models.plain import PlainLocationField as LocationField
 from common.models import SoftDeleteManager
 
 
