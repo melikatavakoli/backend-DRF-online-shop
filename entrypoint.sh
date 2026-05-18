@@ -9,4 +9,4 @@ python manage.py makemigrations --noinput
 python manage.py migrate --noinput
 
 echo "Starting server..."
-exec daphne -b 0.0.0.0 -p 8001 config.asgi:application
+exec python manage.py runserver 0.0.0.0:8001

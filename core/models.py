@@ -31,7 +31,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     status = models.CharField(max_length=20, choices=StatusType.choices, default=StatusType.ACTIVE)
     _is_deleted = models.BooleanField(default=False)
     _deleted_at = models.DateTimeField(null=True, blank=True)
-    password__updated_at = models.DateTimeField(null=True, blank=True,auto_now_add=True,)
+    password_updated_at = models.DateTimeField(null=True, blank=True,auto_now_add=True,)
     objects = UserManager(alive_only=True)
     all_objects = UserManager(alive_only=None)
     deleted_objects = UserManager(alive_only=False)
