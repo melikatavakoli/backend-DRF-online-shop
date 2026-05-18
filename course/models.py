@@ -3,15 +3,17 @@ from django.conf import settings
 from django.db import models
 from common.format import generate_slug
 from common.models import GenericModel
-from course.type import CourseStatus, SessionVideoUploadStatus
+from course.type import CourseStatus
 from users.models import Student
 
 
 class Teacher(GenericModel):
-    title = models.CharField(max_length=310, blank=True, default="")
-    full_name = models.CharField(max_length=310, blank=True, default="")
-    description = models.CharField(max_length=1000, blank=True, default="")
-    avatar = models.ImageField(upload_to="upload_to_by_date", blank=True, null=True)
+    title = models.CharField(max_length=310, blank=True, null=True)
+    full_name = models.CharField(max_length=310, blank=True, null=True)
+    description = models.CharField(max_length=1000, blank=True, null=True)
+    avatar = models.ImageField(
+        upload_to="upload_to_by_date", blank=True, null=True
+    )
 
     class Meta:
         verbose_name = "teacher"
@@ -23,7 +25,7 @@ class Teacher(GenericModel):
 
 
 class Subject(GenericModel):
-    title = models.CharField(max_length=310, blank=True, default="")
+    title = models.CharField(max_length=310, blank=True, null=True)
 
     class Meta:
         verbose_name = "subject"
@@ -35,7 +37,7 @@ class Subject(GenericModel):
 
 
 class Grade(GenericModel):
-    title = models.CharField(max_length=310, blank=True, default="")
+    title = models.CharField(max_length=310, blank=True, null=True)
 
     class Meta:
         verbose_name = "grade"
@@ -47,7 +49,7 @@ class Grade(GenericModel):
 
 
 class Field(GenericModel):
-    title = models.CharField(max_length=310, blank=True, default="")
+    title = models.CharField(max_length=310, blank=True, null=True)
 
     class Meta:
         verbose_name = "field"
@@ -59,13 +61,24 @@ class Field(GenericModel):
 
 
 class Session(GenericModel):
-    course = models.ForeignKey(related_name="sessions", on_delete=models.CASCADE, null=True, blank=True,)
-    title = models.CharField(max_length=310, blank=True, default="")
+    course = models.ForeignKey(
+        related_name="sessions",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    title = models.CharField(max_length=310, blank=True, null=True)
     session_no = models.PositiveSmallIntegerField(null=True, blank=True)
-    video = models.URLField(blank=True, default="")
+    video = models.URLField(blank=True, null=True)
     is_free = models.BooleanField(default=False)
     length = models.DurationField(blank=True, null=True)
-    slug = models.SlugField(max_length=255, unique=True, allow_unicode=True, blank=True, null=True,)
+    slug = models.SlugField(
+        max_length=255,
+        unique=True,
+        allow_unicode=True,
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "session"
@@ -82,14 +95,17 @@ class Session(GenericModel):
 
 
 class SessionProgress(GenericModel):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        related_name="session_progress", verbose_name="progress_user", null=True, blank=True,
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="session_progress",
+        null=True,
+        blank=True,
     )
     session = models.ForeignKey(
         Session,
         on_delete=models.CASCADE,
         related_name="progress",
-        verbose_name="session",
         null=True,
         blank=True,
     )
@@ -117,7 +133,7 @@ class SessionProgress(GenericModel):
 
 
 class CourseCategory(GenericModel):
-    title = models.CharField(max_length=310, blank=True, default="")
+    title = models.CharField(max_length=310, blank=True, null=True)
     session = models.ManyToManyField(Session, related_name="session_category")
 
     class Meta:
@@ -141,26 +157,55 @@ class CourseCategory(GenericModel):
 
 
 class Course(GenericModel):
-    title = models.CharField(max_length=255, blank=True, default="")
-    description = models.TextField(blank=True, default="")
-    price = models.CharField(max_length=20, blank=True, default="")
-    discount_price = models.CharField(max_length=20, blank=True, default="")
-    final_price = models.CharField(max_length=20, blank=True, default="")
+    title = models.CharField(max_length=255, blank=True, null=True)
+    description = models.CharField(max_length=1000, blank=True, null=True)
+    price = models.CharField(max_length=20, blank=True, null=True)
+    discount_price = models.CharField(max_length=20, blank=True, null=True)
+    final_price = models.CharField(max_length=20, blank=True, null=True)
     is_free = models.BooleanField(default=False)
     is_private = models.BooleanField(default=False)
     has_discount = models.BooleanField(default=False)
-    status = models.CharField(max_length=20, choices=CourseStatus.choices, default=CourseStatus.DRAFT)
+    status = models.CharField(
+        max_length=20,
+        choices=CourseStatus.choices,
+        default=CourseStatus.DRAFT,
+    )
     has_video = models.BooleanField(default=False)
-    video_url = models.URLField(blank=True, default="")
+    video_url = models.URLField(blank=True, null=True)
     course_length = models.DurationField(blank=True, null=True)
-    grade = models.ManyToManyField(Grade, related_name="grade_course", verbose_name="grade")
-    field = models.ManyToManyField(Field, related_name="field_course", verbose_name="field")
-    subject = models.ForeignKey(Subject, related_name="subject_course", on_delete=models.CASCADE, null=True, blank=True)
+    grade = models.ManyToManyField(
+        Grade, related_name="grade_course", verbose_name="grade"
+    )
+    field = models.ManyToManyField(
+        Field, related_name="field_course", verbose_name="field"
+    )
+    subject = models.ForeignKey(
+        Subject,
+        related_name="subject_course",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
     image = models.ImageField(upload_to="media", blank=True, null=True)
-    category = models.ManyToManyField(CourseCategory, related_name="category_course", verbose_name="category")
-    teacher = models.ForeignKey(Teacher, related_name="teacher_course", verbose_name="teacher", on_delete=models.CASCADE, null=True, blank=True,)
-    slug = models.SlugField(max_length=255, unique=True, allow_unicode=True, blank=True, null=True)
-    users = models.ManyToManyField(Student, related_name="courses", verbose_name="students", blank=True)
+    category = models.ManyToManyField(
+        CourseCategory,
+        related_name="category_course",
+        verbose_name="category",
+    )
+    teacher = models.ForeignKey(
+        Teacher,
+        related_name="teacher_course",
+        verbose_name="teacher",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    slug = models.SlugField(
+        max_length=255, unique=True, allow_unicode=True, blank=True, null=True
+    )
+    users = models.ManyToManyField(
+        Student, related_name="courses", verbose_name="students", blank=True
+    )
 
     class Meta:
         verbose_name = "course"
@@ -183,7 +228,9 @@ class Course(GenericModel):
                 if discount_str.endswith("%"):
                     percent = float(discount_str.rstrip("%"))
                     if percent < 0 or percent > 100:
-                        raise ValueError("Discount percent must be between 0 and 100")
+                        raise ValueError(
+                            "Discount percent must be between 0 and 100"
+                        )
                     discount_val = price_val * (percent / 100)
                 else:
                     discount_val = float(discount_str)
@@ -213,7 +260,12 @@ class Course(GenericModel):
 
 
 class CourseFeature(GenericModel):
-    course = models.ForeignKey(Course, related_name="features_course", on_delete=models.CASCADE, blank=True)
+    course = models.ForeignKey(
+        Course,
+        related_name="features_course",
+        on_delete=models.CASCADE,
+        blank=True,
+    )
     text = models.CharField(max_length=255, blank=True, default="")
 
     class Meta:
@@ -226,21 +278,33 @@ class CourseFeature(GenericModel):
 
 
 class CourseLearning(GenericModel):
-    course = models.ForeignKey(Course, related_name="learnings_course", on_delete=models.CASCADE, blank=True, null=True)
+    course = models.ForeignKey(
+        Course,
+        related_name="learnings_course",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
     text = models.CharField(max_length=255, blank=True, default="")
 
     class Meta:
         verbose_name = "learning"
         verbose_name_plural = "learnings"
         db_table = "learning"
-        
+
     def __str__(self):
         return self.text or "none"
 
 
 class TagCourse(GenericModel):
-    course = models.ForeignKey(Course, related_name="tag_course", on_delete=models.CASCADE, blank=True, null=True)
-    text = models.CharField(max_length=255, blank=True, default="")
+    course = models.ForeignKey(
+        Course,
+        related_name="tag_course",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    text = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         verbose_name = "tag_course"

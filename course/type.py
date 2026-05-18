@@ -6,6 +6,7 @@ class CourseStatus(models.TextChoices):
     DRAFT = "D", "Draft"
     COMMING_SOON = "CS", "Coming_Soon"
 
+
 class SessionVideoUploadStatus(models.TextChoices):
     INITIATED = "INI", "Initiated"
     UPLOADED = "UP", "Uploaded"

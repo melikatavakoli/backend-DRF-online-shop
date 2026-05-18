@@ -5,17 +5,9 @@ from common.serializers import GenericModelSerializer
 from users.models import Student
 from users.serializers import StudentListSerializer
 from .models import (
-    Course,
-    CourseCategory,
-    CourseFeature,
-    CourseLearning,
-    Field,
-    Grade,
-    Session,
-    SessionProgress,
-    Subject,
-    TagCourse,
-    Teacher,
+    Course, CourseCategory, CourseFeature,
+    CourseLearning, Field, Grade, Session,
+    SessionProgress, Subject, TagCourse, Teacher
 )
 
 
@@ -81,7 +73,7 @@ class SessionWithProgressSerializer(GenericModelSerializer):
         return progress.is_completed if progress else False
 
 
-class SessionProgressUpdateSerializer(GenericModelSerializer):
+class UpdateSessionProgresseSerializer(GenericModelSerializer):
     progress_percentage = serializers.FloatField(read_only=True)
     is_completed = serializers.BooleanField(read_only=True)
 
@@ -96,7 +88,9 @@ class SessionProgressUpdateSerializer(GenericModelSerializer):
     def validate_watched_duration(self, value):
         progress = self.instance
         if progress and value < progress.watched_duration:
-            raise serializers.ValidationError("watched_duration cannot decrease")
+            raise serializers.ValidationError(
+                "watched_duration cannot decrease"
+            )
         return value
 
 
@@ -240,8 +234,12 @@ class CourseUpdateSerializer(GenericModelSerializer):
     patch_grade = serializers.CharField(write_only=True, required=False)
     patch_field = serializers.CharField(write_only=True, required=False)
     patch_category = serializers.CharField(write_only=True, required=False)
-    subject = serializers.PrimaryKeyRelatedField(queryset=Subject.objects.all(), required=False)
-    teacher = serializers.PrimaryKeyRelatedField(queryset=Teacher.objects.all(), required=False)
+    subject = serializers.PrimaryKeyRelatedField(
+        queryset=Subject.objects.all(), required=False
+    )
+    teacher = serializers.PrimaryKeyRelatedField(
+        queryset=Teacher.objects.all(), required=False
+    )
 
     class Meta:
         model = Course
@@ -275,6 +273,7 @@ class CourseUpdateSerializer(GenericModelSerializer):
 
         def parse_ids(value):
             return [x.strip() for x in value.split(",") if x.strip()]
+
         if patch_grade:
             ids = parse_ids(patch_grade)
             instance.grade.set(Grade.objects.filter(id__in=ids))
@@ -324,13 +323,19 @@ class CourseCreateSerializer(GenericModelSerializer):
         with transaction.atomic():
             course = Course.objects.create(**validated_data)
             if grade_str:
-                grade_ids = [g.strip() for g in grade_str.split(",") if g.strip()]
+                grade_ids = [
+                    g.strip() for g in grade_str.split(",") if g.strip()
+                ]
                 course.grade.set(grade_ids)
             if field_str:
-                field_ids = [f.strip() for f in field_str.split(",") if f.strip()]
+                field_ids = [
+                    f.strip() for f in field_str.split(",") if f.strip()
+                ]
                 course.field.set(field_ids)
             if category_str:
-                category_ids = [c.strip() for c in category_str.split(",") if c.strip()]
+                category_ids = [
+                    c.strip() for c in category_str.split(",") if c.strip()
+                ]
                 course.category.set(category_ids)
         return course
 
@@ -338,7 +343,9 @@ class CourseCreateSerializer(GenericModelSerializer):
 class CourseListSerializer(GenericModelSerializer):
     category = serializers.StringRelatedField(many=True, read_only=True)
     subject = serializers.CharField(source="subject.title", read_only=True)
-    teacher = serializers.CharField(source="teacher.full_name", read_only=True)
+    teacher = serializers.CharField(
+        source="teacher.full_name", read_only=True
+    )
     field = FieldSerializer(read_only=True, many=True)
     grade = GradeSerializer(read_only=True, many=True)
     total_students = serializers.SerializerMethodField()
@@ -383,78 +390,81 @@ class CourseStudentsSerializer(GenericModelSerializer):
         )
 
 
-class CourseFeatureSerializer(serializers.Serializer):
-    course = serializers.UUIDField()
-    text = serializers.ListField(child=serializers.CharField())
+class CourseFeatureSerializer(serializers.ModelSerializer):
+    course = serializers.UUIDField(write_only=True)
+    text = serializers.ListField(
+        child=serializers.CharField(max_length=255),
+        write_only=True
+    )
 
-
-class FeaturesSerializer(GenericModelSerializer):
     class Meta:
         model = CourseFeature
-        fields = GenericModelSerializer.Meta.fields + ("id", "course", "text")
-
-
-class CourseFeatureMultiSerializer(serializers.Serializer):
-    course = serializers.UUIDField()
-    text = serializers.ListField(child=serializers.CharField(max_length=255))
+        fields = ("id", "course", "text")
 
     def create(self, validated_data):
-        course_id = validated_data["course"]
-        texts = validated_data["text"]
+        course_id = validated_data.pop("course")
+        texts = validated_data.pop("text")
         course = Course.objects.get(id=course_id)
-        features = [CourseFeature(course=course, text=item) for item in texts]
-        CourseFeature.objects.bulk_create(features)
-        return features
+        features = [
+            CourseFeature(course=course, text=item)
+            for item in texts
+        ]
+        with transaction.atomic():
+            created_objects = CourseFeature.objects.bulk_create(features)
+        return created_objects
 
 
-class CourseLearningSerializer(GenericModelSerializer):
+class CourseLearningSerializer(serializers.ModelSerializer):
+    course = serializers.UUIDField(write_only=True)
+    text = serializers.ListField(
+        child=serializers.CharField(max_length=255),
+        write_only=True
+    )
+
     class Meta:
         model = CourseLearning
         fields = GenericModelSerializer.Meta.fields + ("id", "course", "text")
 
-
-class CourseLearningMultiSerializer(serializers.Serializer):
-    course = serializers.UUIDField()
-    text = serializers.ListField(child=serializers.CharField(max_length=255))
-
     def create(self, validated_data):
-        course_id = validated_data["course"]
-        texts = validated_data["text"]
+        course_id = validated_data.pop("course")
+        texts = validated_data.pop("text")
         course = Course.objects.get(id=course_id)
-        learnings = [CourseLearning(course=course, text=item) for item in texts]
-        CourseLearning.objects.bulk_create(learnings)
-        return learnings
+        learnings = [
+            CourseLearning(course=course, text=item)
+            for item in texts
+        ]
+        with transaction.atomic():
+            created_objects = CourseLearning.objects.bulk_create(learnings)
+        return created_objects
 
 
-class TagSerializer(GenericModelSerializer):
-    class Meta:
-        model = CourseLearning
-        fields = GenericModelSerializer.Meta.fields + ("id", "course", "text")
-
-
-class CourseTagsMultiSerializer(serializers.Serializer):
-    course = serializers.UUIDField()
-    text = serializers.ListField(child=serializers.CharField(max_length=255))
-
-    def create(self, validated_data):
-        course_id = validated_data["course"]
-        texts = validated_data["text"]
-        course = Course.objects.get(id=course_id)
-        tags = [CourseLearning(course=course, text=item) for item in texts]
-        TagCourse.objects.bulk_create(tags)
-        return tags
-
-
-class TagCourseUpdateSerializer(serializers.ModelSerializer):
-    text = serializers.ListField(child=serializers.CharField(),write_only=True,required=True)
+class TagSerializer(serializers.ModelSerializer):
+    course = serializers.UUIDField(write_only=True)
+    text = serializers.ListField(
+        child=serializers.CharField(max_length=255),
+        write_only=True
+        )
 
     class Meta:
         model = TagCourse
-        fields = ("course", "text")
+        fields = GenericModelSerializer.Meta.fields + ("id", "course", "text")
+
+    def create(self, validated_data):
+        course_id = validated_data["course"]
+        texts = validated_data["text"]
+        course = Course.objects.get(id=course_id)
+        tags = [TagCourse(course=course, text=item) for item in texts]
+        with transaction.atomic():
+            created_objects = TagCourse.objects.bulk_create(tags)
+        return created_objects
 
     def update(self, instance, validated_data):
-        TagCourse.objects.filter(course=instance.course).delete()
         texts = validated_data.get("text", [])
-        new_tags = [TagCourse(course=instance.course, text=t) for t in texts]
-        TagCourse.objects.bulk_create(new_tags)
+        with transaction.atomic():
+            TagCourse.objects.filter(course=instance.course).delete()
+            new_tags = [
+                TagCourse(course=instance.course, text=t)
+                for t in texts
+            ]
+            TagCourse.objects.bulk_create(new_tags)
         return instance

@@ -1,19 +1,11 @@
 from django.contrib import admin
-
 from common.admin import BaseAdmin, SoftDeleteListFilter
-
 from .models import (
-    Course,
-    CourseCategory,
-    CourseFeature,
-    CourseLearning,
-    Field,
-    Grade,
-    Session,
-    SessionProgress,
-    Subject,
-    TagCourse,
-    Teacher,
+    Course, CourseCategory,
+    CourseFeature, CourseLearning,
+    Field, Grade, Session,
+    SessionProgress, Subject,
+    TagCourse, Teacher,
 )
 
 
@@ -88,21 +80,6 @@ class SessionProgressAdmin(BaseAdmin):
     is_completed.boolean = True
 
 
-@admin.register(SessionVideoUpload)
-class SessionVideoUploadAdmin(BaseAdmin):
-    list_display = (
-        "session",
-        "status",
-        "arvan_video_id",
-        "cleanup_done",
-        "attempt_count",
-        "_updated_at",
-    )
-    list_filter = (SoftDeleteListFilter, "status", "cleanup_done")
-    search_fields = ("session__title", "session__slug", "arvan_video_id")
-    ordering = ("-_updated_at",)
-
-
 @admin.register(CourseCategory)
 class CourseCategoryAdmin(BaseAdmin):
     list_display = ("title", "total_sessions", "total_length", "_created_at")
@@ -145,7 +122,6 @@ class CourseAdmin(BaseAdmin):
         "category",
         "users",
     )
-    # autocomplete_fields = ("teacher", "subject")
     autocomplete_fields = ("teacher", "subject", "users")
     list_select_related = ("teacher", "subject")
     ordering = ("-_created_at",)

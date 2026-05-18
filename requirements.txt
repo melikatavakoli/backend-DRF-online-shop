@@ -1,103 +1,59 @@
-# =========================
-# Import / Export & Reports
-# =========================
-django-import-export==4.4.0      # Admin import/export (Excel, CSV) - py3.14 not declared
-openpyxl==3.1.5                  # Excel file support - py3.14 not declared
-pandas>=3.0.0                    # Data processing & reports - py3.14 OK
-drf-standardized-errors==0.15.0  # py3.14 not declared
+Django>=5.1,<5.3
+djangorestframework==3.16.1
+django-filter==25.1
+django-cors-headers==4.9.0
 
-# =========================
-# Core Django & REST API
-# =========================
-Django>=5.2.8,<5.3                 # Django framework
-djangorestframework==3.16.1      # REST API core - py3.14 not declared
-django-filter==25.1              # Queryset filtering - py3.14 not declared
-django-cors-headers==4.9.0       # CORS support for frontend - py3.14 OK
+psycopg2-binary>=2.9.11
 
-# =========================
-# Authentication & JWT
-# =========================
-djangorestframework_simplejwt==5.4.0  # JWT authentication
-PyJWT==2.7.0                          # JWT encoding/decoding
-python-jose==3.5.0                    # Advanced JWT & JWS
-djoser==2.3.1                         # Auth endpoints (login, register)
-cryptography>=46.0.3             # Crypto backend for JWT - py3.14 OK
+djangorestframework_simplejwt==5.4.0
+PyJWT==2.7.0
+python-jose==3.5.0
+djoser==2.3.1
+cryptography>=46.0.3
 
-# =========================
-# Audit, History & Logging
-# =========================
-django-simple-history==3.7.0      # Model change history
-django-auditlog==3.4.1            # User action audit logs
-python-json-logger==3.3.0         # Structured JSON logs
-logger                             # Application logging helper
+django-import-export==4.4.0
+openpyxl==3.1.5
+pandas>=2.2.0 
 
-# =========================
-# Background Tasks (Celery)
-# =========================
+django-simple-history==3.7.0
+django-auditlog==3.4.1
+python-json-logger==3.3.0
+
 django-redis==5.4.0
-celery==5.4.0                     # Async task queue - py3.14 not declared
-redis==7.1.0                      # Message broker / cache - py3.14 OK
-django-redis==5.4.0               # Redis cache backend
-django-celery-beat==2.8.0         # Periodic tasks (cron)
-flower==2.0.1                     # Celery monitoring UI
-kombu==5.5.4                      # Celery messaging library
-channels==4.3.2                   # py3.14 OK
-channels-redis==4.3.0
-channels[daphne]
+celery==5.4.0
+redis==7.1.0
+django-celery-beat==2.8.0
+flower==2.0.1
+kombu==5.5.4
 
-# =========================
-# Realtime / WebSocket
-# =========================
-channels==4.3.2                   # Django async & WebSocket - py3.14 OK
-channels-redis==4.3.0             # Redis channel layer
-django-eventstream==5.3.1         # Server-sent events (SSE)
-daphne==4.1.2                     # ASGI server
-websockets==15.0.1                # WebSocket protocol support
-channels[daphne]
+django-storages==1.14.6
+boto3==1.42.34
 
-# =========================
-# Database & File Storage
-# =========================
-psycopg2-binary>=2.9.11           # PostgreSQL driver - py3.14 OK
-django-storages==1.14.6           # Cloud storage integration
-boto3==1.42.34                    # S3 / MinIO client - py3.14 OK
-django-uuid7
+django-debug-toolbar==6.1.0
+django-extensions==3.2.3
+Werkzeug>=3.0.0,<4 
 
-# =========================
-# Development & Debug Tools
-# =========================
-django-debug-toolbar==6.1.0       # Debugging panel
-django-extensions==3.2.3          # Dev utilities & commands
-Werkzeug>=1.0,<4                  # Debug & dev tools
+drf-spectacular==0.28.0
+drf-spectacular-sidecar==2025.9.1
 
-# =========================
-# API Documentation
-# =========================
-drf-spectacular==0.28.0           # OpenAPI schema generator
-drf-spectacular-sidecar==2025.9.1 # Swagger / Redoc UI
+persiantools==5.4.0
+jdatetime==5.2.0
 
-# =========================
-# Localization & Utilities
-# =========================
-persiantools==5.4.0               # Persian text utilities
-jdatetime==5.2.0                  # Jalali date support
-user-agents==2.2.0                # Client device detection
-geoip2==5.2.0                     # IP geolocation - py3.14 OK
-clickhouse_connect==0.10.0         # ClickHouse analytics
+user-agents==2.2.0
+geoip2==5.2.0
 
-# ======== invoice pdf =====
-weasyprint==67.0
 python-dotenv==1.0.1
-django-unfold==0.76.0
 django-location-field==2.7.3
-Pillow==12.1.0                    # py3.14 OK
-django-ckeditor-5==0.2.17
-gunicorn==23.0.0
-uvicorn[standard]==0.40.0         # py3.14 OK
+Pillow==12.1.0
 
+drf-standardized-errors==0.15.0
+channels-redis>=4.2.0
+channels>=4.1.0
+django-currentuser==0.8.0
 
+flake8==7.3.0
+black==26.12.10
+faker
 pytest
 pytest-django
-factory-boy
-pytest-cov
-django-extensions
+ruff   # ruff check .  # ruff check . --fix   # ruff format .

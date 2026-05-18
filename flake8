@@ -1,0 +1,17 @@
+[flake8]
+exclude =
+    .git,
+    __pycache__,
+    *.pyc,
+    *.pyo,
+    *.py[co],
+    venv,
+    .venv,
+    .env,
+    migrations,
+    manage.py
+
+ignore =
+    F403,
+    F405,
+    E501

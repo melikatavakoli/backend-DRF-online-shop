@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,38 +11,17 @@ from rest_framework.views import APIView
 from common.paginations import CustomLimitOffsetPagination
 from course.filters import CourseFilter
 from .models import (
-    Course,
-    CourseCategory,
-    CourseFeature,
-    CourseLearning,
-    Field,
-    Grade,
-    Session,
-    SessionProgress,
-    SessionVideoUploadStatus,
-    Subject,
-    TagCourse,
-    Teacher,
+    Course, CourseCategory,
+    CourseFeature, CourseLearning,
+    Field, Grade, Session,
+    SessionProgress, Subject,
+    TagCourse, Teacher,
 )
 from .serializers import (
-    CategorySerializer,
-    CourseCreateSerializer,
-    CourseDetailSerializer,
-    CourseFeatureMultiSerializer,
-    CourseFeatureSerializer,
-    CourseLearningMultiSerializer,
-    CourseLearningSerializer,
-    CourseListSerializer,
-    CourseStudentsSerializer,
-    CourseTagsMultiSerializer,
-    CourseUpdateSerializer,
-    FeaturesSerializer,
-    FieldSerializer,
-    GradeSerializer,
-    SessionProgressUpdateSerializer,
-    SessionSerializer,
-    SubjectSerializer,
-    TeacherSerializer,
+    CategorySerializer, CourseCreateSerializer, CourseDetailSerializer,
+    CourseFeatureSerializer, CourseLearningSerializer, CourseListSerializer, CourseStudentsSerializer,
+    CourseUpdateSerializer, FieldSerializer, GradeSerializer, TagSerializer,
+    UpdateSessionProgresseSerializer, SessionSerializer, SubjectSerializer, TeacherSerializer,
 )
 
 
@@ -97,7 +75,9 @@ class SessionViewSet(viewsets.ModelViewSet):
     pagination_class = CustomLimitOffsetPagination
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    filterset_fields = ["course_id",]
+    filterset_fields = [
+        "course_id",
+    ]
     ordering_fields = ["_created_at", "_updated_at"]
     ordering = ["-_created_at"]
 
@@ -124,7 +104,11 @@ class CourseViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, OrderingFilter, SearchFilter)
     filterset_class = CourseFilter
     ordering_fields = ("_created_at", "_updated_at", "total_students")
-    search_fields = ("status","subject__title","teacher__full_name",)
+    search_fields = (
+        "status",
+        "subject__title",
+        "teacher__full_name",
+    )
     lookup_field = "slug"
 
     def get_queryset(self):
@@ -162,7 +146,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
 
 class UpdateSessionProgressView(generics.UpdateAPIView):
-    serializer_class = SessionProgressUpdateSerializer
+    serializer_class = UpdateSessionProgresseSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
@@ -186,7 +170,7 @@ class CourseUpdateBySlugAPIView(generics.UpdateAPIView):
     serializer_class = CourseUpdateSerializer
     lookup_field = "pk"
     parser_classes = (MultiPartParser, FormParser)
-    
+
     queryset = Course.objects.prefetch_related(
         "category__session", "grade", "field"
     ).select_related("subject", "teacher")
@@ -206,9 +190,9 @@ class CourseSessionsAPIView(APIView):
     def get(self, request, course_id):
         course = get_object_or_404(Course, id=course_id)
         categories = course.category.all()
-        sessions = Session.objects.filter(session_category__in=categories).order_by(
-            "session_no"
-        )
+        sessions = Session.objects.filter(
+            session_category__in=categories
+        ).order_by("session_no")
         serializer = SessionSerializer(
             sessions, many=True, context={"request": request}
         )
@@ -252,11 +236,13 @@ class MyCoursesAPIView(APIView):
 
 
 class CourseFeatureViewSet(viewsets.ModelViewSet):
-    serializer_class = FeaturesSerializer
+    # serializer_class = FeaturesSerializer
     queryset = TagCourse.objects.all()
     pagination_class = CustomLimitOffsetPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    filterset_fields = ["course_id",]
+    filterset_fields = [
+        "course_id",
+    ]
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
@@ -282,16 +268,20 @@ class CourseFeatureViewSet(viewsets.ModelViewSet):
         if not course_id:
             return Response({"detail": "course is required"}, status=400)
         CourseFeature.objects.filter(course_id=course_id).delete()
-        new_features = [CourseFeature(course_id=course_id, text=t) for t in texts]
+        new_features = [
+            CourseFeature(course_id=course_id, text=t) for t in texts
+        ]
         CourseFeature.objects.bulk_create(new_features)
-        return Response({"detail": "Course features updated successfully"}, status=200)
+        return Response(
+            {"detail": "Course features updated successfully"}, status=200
+        )
 
 
 class CourseFeatureMultiCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = CourseFeatureMultiSerializer(data=request.data)
+        serializer = CourseFeatureSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -306,7 +296,9 @@ class CourseLearningViewSet(viewsets.ModelViewSet):
     serializer_class = CourseLearningSerializer
     pagination_class = CustomLimitOffsetPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    filterset_fields = ["course_id",]
+    filterset_fields = [
+        "course_id",
+    ]
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
@@ -322,7 +314,7 @@ class CourseLearningViewSet(viewsets.ModelViewSet):
                 grouped_data[course_id] = {"course": course_id, "text": []}
             grouped_data[course_id]["text"].append(obj.text)
         result = list(grouped_data.values())
-        serializer = CourseFeatureMultiSerializer(result, many=True)
+        serializer = CourseFeatureSerializer(result, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=["patch"], url_path="update-text")
@@ -332,10 +324,13 @@ class CourseLearningViewSet(viewsets.ModelViewSet):
         if not course_id:
             return Response({"detail": "course is required"}, status=400)
         CourseLearning.objects.filter(course_id=course_id).delete()
-        new_learnings = [CourseLearning(course_id=course_id, text=t) for t in texts]
+        new_learnings = [
+            CourseLearning(course_id=course_id, text=t) for t in texts
+        ]
         CourseLearning.objects.bulk_create(new_learnings)
         return Response(
-            {"detail": "Course learning texts updated successfully"}, status=200
+            {"detail": "Course learning texts updated successfully"},
+            status=200,
         )
 
 
@@ -343,7 +338,7 @@ class CourseLearningsMultiCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = CourseLearningMultiSerializer(data=request.data)
+        serializer = CourseLearningSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -374,7 +369,7 @@ class TagViewSet(viewsets.ModelViewSet):
                 grouped_data[course_id] = {"course": course_id, "text": []}
             grouped_data[course_id]["text"].append(obj.text)
         result = list(grouped_data.values())
-        serializer = CourseFeatureMultiSerializer(result, many=True)
+        serializer = CourseFeatureSerializer(result, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=["patch"], url_path="update-text")
@@ -393,10 +388,11 @@ class CourseTagMultiCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = CourseTagsMultiSerializer(data=request.data)
+        serializer = TagSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(
-                {"message": "Tags created successfully"}, status=status.HTTP_201_CREATED
+                {"message": "Tags created successfully"},
+                status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
