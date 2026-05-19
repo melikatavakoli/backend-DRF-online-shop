@@ -62,7 +62,8 @@ class Field(GenericModel):
 
 class Session(GenericModel):
     course = models.ForeignKey(
-        related_name="sessions",
+        "course.Course",
+        related_name="session_course",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
