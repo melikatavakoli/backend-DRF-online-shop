@@ -1,6 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema
-from rest_framework import generics,viewsets
+from rest_framework import generics, viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
@@ -72,7 +72,6 @@ class ProfileView(generics.RetrieveAPIView):
             resource_type_field_name=None,
         ),
     )
-    
     def patch(self, request, *args, **kwargs):
         user = request.user
         data = request.data.copy()
@@ -137,7 +136,13 @@ class ConsultantViewSet(viewsets.ModelViewSet):
     pagination_class = CustomLimitOffsetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ConsultantFilterSet
-    search_fields = ("user__first_name","user__last_name","user__mobile","user__email","description",)
+    search_fields = (
+        "user__first_name",
+        "user__last_name",
+        "user__mobile",
+        "user__email",
+        "description",
+    )
     ordering_fields = ("_created_at", "_updated_at")
     ordering = ("-_updated_at",)
 
@@ -154,9 +159,20 @@ class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     pagination_class = CustomLimitOffsetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ("grade", "field", "user__city", "user__state", "_created_by")
+    filterset_fields = (
+        "grade",
+        "field",
+        "user__city",
+        "user__state",
+        "_created_by",
+    )
     search_fields = ("user__first_name", "user__last_name", "user__mobile")
-    ordering_fields = ("_created_at","_updated_at","user__first_name","user__last_name",)
+    ordering_fields = (
+        "_created_at",
+        "_updated_at",
+        "user__first_name",
+        "user__last_name",
+    )
     ordering = ("-_updated_at",)
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
@@ -173,7 +189,12 @@ class TopStudentViewSet(viewsets.ModelViewSet):
     serializer_class = TopStudentSerializer
     pagination_class = CustomLimitOffsetPagination
     filterset_fields = ("field", "branch")
-    search_fields = ("student__user__first_name","student__user__last_name","first_name","last_name",)
+    search_fields = (
+        "student__user__first_name",
+        "student__user__last_name",
+        "first_name",
+        "last_name",
+    )
     ordering = ("-_created_at",)
 
     def get_permissions(self):
@@ -212,7 +233,7 @@ class StudentExportExcelView(APIView):
         excel_file = export_students_to_excel(queryset)
         response = HttpResponse(
             excel_file,
-            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
         response["Content-Disposition"] = 'attachment; filename="students-report.xlsx"'
         return response

@@ -11,17 +11,34 @@ from rest_framework.views import APIView
 from common.paginations import CustomLimitOffsetPagination
 from course.filters import CourseFilter
 from .models import (
-    Course, CourseCategory,
-    CourseFeature, CourseLearning,
-    Field, Grade, Session,
-    SessionProgress, Subject,
-    TagCourse, Teacher,
+    Course,
+    CourseCategory,
+    CourseFeature,
+    CourseLearning,
+    Field,
+    Grade,
+    Session,
+    SessionProgress,
+    Subject,
+    TagCourse,
+    Teacher,
 )
 from .serializers import (
-    CategorySerializer, CourseCreateSerializer, CourseDetailSerializer,
-    CourseFeatureSerializer, CourseLearningSerializer, CourseListSerializer, CourseStudentsSerializer,
-    CourseUpdateSerializer, FieldSerializer, GradeSerializer, TagSerializer,
-    UpdateSessionProgresseSerializer, SessionSerializer, SubjectSerializer, TeacherSerializer,
+    CategorySerializer,
+    CourseCreateSerializer,
+    CourseDetailSerializer,
+    CourseFeatureSerializer,
+    CourseLearningSerializer,
+    CourseListSerializer,
+    CourseStudentsSerializer,
+    CourseUpdateSerializer,
+    FieldSerializer,
+    GradeSerializer,
+    TagSerializer,
+    UpdateSessionProgresseSerializer,
+    SessionSerializer,
+    SubjectSerializer,
+    TeacherSerializer,
 )
 
 
@@ -190,9 +207,9 @@ class CourseSessionsAPIView(APIView):
     def get(self, request, course_id):
         course = get_object_or_404(Course, id=course_id)
         categories = course.category.all()
-        sessions = Session.objects.filter(
-            session_category__in=categories
-        ).order_by("session_no")
+        sessions = Session.objects.filter(session_category__in=categories).order_by(
+            "session_no"
+        )
         serializer = SessionSerializer(
             sessions, many=True, context={"request": request}
         )
@@ -268,13 +285,9 @@ class CourseFeatureViewSet(viewsets.ModelViewSet):
         if not course_id:
             return Response({"detail": "course is required"}, status=400)
         CourseFeature.objects.filter(course_id=course_id).delete()
-        new_features = [
-            CourseFeature(course_id=course_id, text=t) for t in texts
-        ]
+        new_features = [CourseFeature(course_id=course_id, text=t) for t in texts]
         CourseFeature.objects.bulk_create(new_features)
-        return Response(
-            {"detail": "Course features updated successfully"}, status=200
-        )
+        return Response({"detail": "Course features updated successfully"}, status=200)
 
 
 class CourseFeatureMultiCreateAPIView(APIView):
@@ -324,9 +337,7 @@ class CourseLearningViewSet(viewsets.ModelViewSet):
         if not course_id:
             return Response({"detail": "course is required"}, status=400)
         CourseLearning.objects.filter(course_id=course_id).delete()
-        new_learnings = [
-            CourseLearning(course_id=course_id, text=t) for t in texts
-        ]
+        new_learnings = [CourseLearning(course_id=course_id, text=t) for t in texts]
         CourseLearning.objects.bulk_create(new_learnings)
         return Response(
             {"detail": "Course learning texts updated successfully"},

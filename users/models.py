@@ -27,11 +27,21 @@ class Speciality(GenericModel):
 
 
 class Consultant(GenericModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='counsultant_user', null=True, blank=True)
-    specialities = models.ManyToManyField(Speciality, related_name="consultants", blank=True)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="counsultant_user",
+        null=True,
+        blank=True,
+    )
+    specialities = models.ManyToManyField(
+        Speciality, related_name="consultants", blank=True
+    )
     major = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    education = models.IntegerField(choices=EducationChoices.choices, null=True, blank=True)
+    education = models.IntegerField(
+        choices=EducationChoices.choices, null=True, blank=True
+    )
     is_present = models.BooleanField(default=True)
 
     class Meta:
@@ -45,9 +55,17 @@ class Consultant(GenericModel):
 
 
 class Student(GenericModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_user', null=True, blank=True)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="student_user",
+        null=True,
+        blank=True,
+    )
     grade = models.IntegerField(choices=GradeChoices.choices, null=True, blank=True)
-    field = models.CharField(max_length=100, choices=FieldChoices.choices, blank=True, default="")
+    field = models.CharField(
+        max_length=100, choices=FieldChoices.choices, blank=True, default=""
+    )
     description = models.CharField(max_length=1000, blank=True, null=True)
 
     class Meta:
@@ -61,17 +79,27 @@ class Student(GenericModel):
 
 
 class TopStudent(GenericModel):
-    student = models.OneToOneField(Student, on_delete=models.SET_NULL, null=True, blank=True)
-    branch = models.ForeignKey(Branch, related_name="top_students", on_delete=models.SET_NULL, null=True,blank=True,)
+    student = models.OneToOneField(
+        Student, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    branch = models.ForeignKey(
+        Branch,
+        related_name="top_students",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
     uni_accepted_major = models.CharField(max_length=500, blank=True, null=True)
     university = models.CharField(max_length=100, blank=True, null=True)
-    first_name = models.CharField(max_length=127, null=True,blank=True)
-    last_name = models.CharField(max_length=127, null=True,blank=True)
-    field = models.CharField(max_length=100, choices=FieldChoices.choices, null=True,blank=True)
+    first_name = models.CharField(max_length=127, null=True, blank=True)
+    last_name = models.CharField(max_length=127, null=True, blank=True)
+    field = models.CharField(
+        max_length=100, choices=FieldChoices.choices, null=True, blank=True
+    )
     description = models.CharField(max_length=1000, blank=True, null=True)
     rank = models.PositiveSmallIntegerField()
     image = models.ImageField(upload_to="upload_to_by_date", blank=True, null=True)
-    year = models.PositiveSmallIntegerField(choices=years, null=True,blank=True)
+    year = models.PositiveSmallIntegerField(choices=years, null=True, blank=True)
 
     @property
     def full_name(self):

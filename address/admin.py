@@ -17,7 +17,9 @@ class CountryAdmin(BaseAdmin):
 @admin.register(State)
 class StateAdmin(BaseAdmin):
     list_display = ["label", "country", "created_at", "updated_at"]
-    list_filter = ["country",]
+    list_filter = [
+        "country",
+    ]
     search_fields = ["label", "country__label"]
     ordering = ["country__label", "label"]
     readonly_fields = ["id", "created_at", "updated_at", "_is_deleted", "_deleted_at"]
@@ -37,17 +39,30 @@ class BranchAdmin(BaseAdmin):
     list_display = ["code", "title", "city", "mobile", "created_at"]
     list_filter = ["city", "city__state"]
     search_fields = ["code", "title", "address", "mobile", "city__label"]
-    ordering = ["city__state__country__label", "city__state__label", "city__label", "title"]
+    ordering = [
+        "city__state__country__label",
+        "city__state__label",
+        "city__label",
+        "title",
+    ]
     readonly_fields = ["id", "created_at", "updated_at", "_is_deleted", "_deleted_at"]
     fieldsets = (
-        (_("Basic Info"), {
-            "fields": ("code", "title", "address", "location", "mobile")
-        }),
-        (_("Location"), {
-            "fields": ("city",)
-        }),
-        (_("System Fields"), {
-            "fields": ("id", "created_at", "updated_at", "_is_deleted", "_deleted_at"),
-            "classes": ("collapse",)
-        }),
+        (
+            _("Basic Info"),
+            {"fields": ("code", "title", "address", "location", "mobile")},
+        ),
+        (_("Location"), {"fields": ("city",)}),
+        (
+            _("System Fields"),
+            {
+                "fields": (
+                    "id",
+                    "created_at",
+                    "updated_at",
+                    "_is_deleted",
+                    "_deleted_at",
+                ),
+                "classes": ("collapse",),
+            },
+        ),
     )

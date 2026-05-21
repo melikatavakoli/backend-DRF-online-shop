@@ -41,37 +41,49 @@ class BaseUserAdmin(BaseAdmin):
     )
 
     fieldsets = (
-        ("Basic Info", {
-            "fields": (
-                "mobile",
-                "email",
-                "first_name",
-                "last_name",
-                "birth_date",
-                "role",
-                "description",
-            )
-        }),
-        ("Location", {
-            "fields": (
-                "country",
-                "state",
-                "city",
-            )
-        }),
-        ("Verification", {
-            "fields": (
-                "is_verified",
-                "is_email_verified",
-            )
-        }),
-        ("Security", {
-            "fields": (
-                "password",
-                "last_login",
-                "last_login_ip",
-            )
-        }),
+        (
+            "Basic Info",
+            {
+                "fields": (
+                    "mobile",
+                    "email",
+                    "first_name",
+                    "last_name",
+                    "birth_date",
+                    "role",
+                    "description",
+                )
+            },
+        ),
+        (
+            "Location",
+            {
+                "fields": (
+                    "country",
+                    "state",
+                    "city",
+                )
+            },
+        ),
+        (
+            "Verification",
+            {
+                "fields": (
+                    "is_verified",
+                    "is_email_verified",
+                )
+            },
+        ),
+        (
+            "Security",
+            {
+                "fields": (
+                    "password",
+                    "last_login",
+                    "last_login_ip",
+                )
+            },
+        ),
     )
 
     def delete_queryset(self, request, queryset):

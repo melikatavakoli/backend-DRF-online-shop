@@ -5,9 +5,17 @@ from common.serializers import GenericModelSerializer
 from users.models import Student
 from users.serializers import StudentListSerializer
 from .models import (
-    Course, CourseCategory, CourseFeature,
-    CourseLearning, Field, Grade, Session,
-    SessionProgress, Subject, TagCourse, Teacher
+    Course,
+    CourseCategory,
+    CourseFeature,
+    CourseLearning,
+    Field,
+    Grade,
+    Session,
+    SessionProgress,
+    Subject,
+    TagCourse,
+    Teacher,
 )
 
 
@@ -88,9 +96,7 @@ class UpdateSessionProgresseSerializer(GenericModelSerializer):
     def validate_watched_duration(self, value):
         progress = self.instance
         if progress and value < progress.watched_duration:
-            raise serializers.ValidationError(
-                "watched_duration cannot decrease"
-            )
+            raise serializers.ValidationError("watched_duration cannot decrease")
         return value
 
 
@@ -323,19 +329,13 @@ class CourseCreateSerializer(GenericModelSerializer):
         with transaction.atomic():
             course = Course.objects.create(**validated_data)
             if grade_str:
-                grade_ids = [
-                    g.strip() for g in grade_str.split(",") if g.strip()
-                ]
+                grade_ids = [g.strip() for g in grade_str.split(",") if g.strip()]
                 course.grade.set(grade_ids)
             if field_str:
-                field_ids = [
-                    f.strip() for f in field_str.split(",") if f.strip()
-                ]
+                field_ids = [f.strip() for f in field_str.split(",") if f.strip()]
                 course.field.set(field_ids)
             if category_str:
-                category_ids = [
-                    c.strip() for c in category_str.split(",") if c.strip()
-                ]
+                category_ids = [c.strip() for c in category_str.split(",") if c.strip()]
                 course.category.set(category_ids)
         return course
 
@@ -343,9 +343,7 @@ class CourseCreateSerializer(GenericModelSerializer):
 class CourseListSerializer(GenericModelSerializer):
     category = serializers.StringRelatedField(many=True, read_only=True)
     subject = serializers.CharField(source="subject.title", read_only=True)
-    teacher = serializers.CharField(
-        source="teacher.full_name", read_only=True
-    )
+    teacher = serializers.CharField(source="teacher.full_name", read_only=True)
     field = FieldSerializer(read_only=True, many=True)
     grade = GradeSerializer(read_only=True, many=True)
     total_students = serializers.SerializerMethodField()
@@ -393,8 +391,7 @@ class CourseStudentsSerializer(GenericModelSerializer):
 class CourseFeatureSerializer(serializers.ModelSerializer):
     course = serializers.UUIDField(write_only=True)
     text = serializers.ListField(
-        child=serializers.CharField(max_length=255),
-        write_only=True
+        child=serializers.CharField(max_length=255), write_only=True
     )
 
     class Meta:
@@ -405,10 +402,7 @@ class CourseFeatureSerializer(serializers.ModelSerializer):
         course_id = validated_data.pop("course")
         texts = validated_data.pop("text")
         course = Course.objects.get(id=course_id)
-        features = [
-            CourseFeature(course=course, text=item)
-            for item in texts
-        ]
+        features = [CourseFeature(course=course, text=item) for item in texts]
         with transaction.atomic():
             created_objects = CourseFeature.objects.bulk_create(features)
         return created_objects
@@ -417,8 +411,7 @@ class CourseFeatureSerializer(serializers.ModelSerializer):
 class CourseLearningSerializer(serializers.ModelSerializer):
     course = serializers.UUIDField(write_only=True)
     text = serializers.ListField(
-        child=serializers.CharField(max_length=255),
-        write_only=True
+        child=serializers.CharField(max_length=255), write_only=True
     )
 
     class Meta:
@@ -429,10 +422,7 @@ class CourseLearningSerializer(serializers.ModelSerializer):
         course_id = validated_data.pop("course")
         texts = validated_data.pop("text")
         course = Course.objects.get(id=course_id)
-        learnings = [
-            CourseLearning(course=course, text=item)
-            for item in texts
-        ]
+        learnings = [CourseLearning(course=course, text=item) for item in texts]
         with transaction.atomic():
             created_objects = CourseLearning.objects.bulk_create(learnings)
         return created_objects
@@ -441,9 +431,8 @@ class CourseLearningSerializer(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
     course = serializers.UUIDField(write_only=True)
     text = serializers.ListField(
-        child=serializers.CharField(max_length=255),
-        write_only=True
-        )
+        child=serializers.CharField(max_length=255), write_only=True
+    )
 
     class Meta:
         model = TagCourse
@@ -462,9 +451,6 @@ class TagSerializer(serializers.ModelSerializer):
         texts = validated_data.get("text", [])
         with transaction.atomic():
             TagCourse.objects.filter(course=instance.course).delete()
-            new_tags = [
-                TagCourse(course=instance.course, text=t)
-                for t in texts
-            ]
+            new_tags = [TagCourse(course=instance.course, text=t) for t in texts]
             TagCourse.objects.bulk_create(new_tags)
         return instance

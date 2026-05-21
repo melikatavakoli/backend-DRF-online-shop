@@ -22,12 +22,13 @@ def build_student_export_payload(queryset):
 
     rows = []
     for item in serialized_data:
-        
         grade_value = item.get("grade")
         field_value = item.get("field")
 
         try:
-            grade_label = GradeChoices(grade_value).label if grade_value is not None else "-"
+            grade_label = (
+                GradeChoices(grade_value).label if grade_value is not None else "-"
+            )
         except ValueError:
             grade_label = grade_value
 
@@ -35,15 +36,17 @@ def build_student_export_payload(queryset):
             field_label = FieldChoices(field_value).label if field_value else "-"
         except ValueError:
             field_label = field_value
-            
-        rows.append({
-            "id": item.get("id"),
-            "full_name": item.get("full_name", "-"),
-            "mobile": item.get("mobile", "-"),
-            "grade": grade_label,
-            "field": field_label,
-            "description": item.get("description", "-"),
-        })
+
+        rows.append(
+            {
+                "id": item.get("id"),
+                "full_name": item.get("full_name", "-"),
+                "mobile": item.get("mobile", "-"),
+                "grade": grade_label,
+                "field": field_label,
+                "description": item.get("description", "-"),
+            }
+        )
 
     return {
         "kind": "excel",
@@ -52,6 +55,7 @@ def build_student_export_payload(queryset):
         "columns": columns,
         "rows": rows,
     }
+
 
 def export_students_to_excel(queryset):
     payload = build_student_export_payload(queryset)
@@ -91,7 +95,9 @@ def export_students_to_excel(queryset):
                 col_widths[col_idx - 1] = display_len
 
     for idx, width in enumerate(col_widths, start=1):
-        worksheet.column_dimensions[get_column_letter(idx)].width = min(max(width + 2, 12), 80)
+        worksheet.column_dimensions[get_column_letter(idx)].width = min(
+            max(width + 2, 12), 80
+        )
 
     worksheet.freeze_panes = "A2"
 

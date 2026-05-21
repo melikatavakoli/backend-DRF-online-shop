@@ -1,11 +1,17 @@
 from django.contrib import admin
 from common.admin import BaseAdmin, SoftDeleteListFilter
 from .models import (
-    Course, CourseCategory,
-    CourseFeature, CourseLearning,
-    Field, Grade, Session,
-    SessionProgress, Subject,
-    TagCourse, Teacher,
+    Course,
+    CourseCategory,
+    CourseFeature,
+    CourseLearning,
+    Field,
+    Grade,
+    Session,
+    SessionProgress,
+    Subject,
+    TagCourse,
+    Teacher,
 )
 
 

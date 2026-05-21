@@ -14,7 +14,6 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
 DJANGO_APPS = [
-
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -43,12 +42,7 @@ THIRD_PARTY_APPS = [
     "drf_spectacular_sidecar",
 ]
 
-LOCAL_APPS = [
-    "address",
-    "core",
-    "users",
-    "course"
-]
+LOCAL_APPS = ["address", "core", "users", "course", "product", "order"]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -61,7 +55,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "common.middleware.CurrentUserMiddleware", 
+    "common.middleware.CurrentUserMiddleware",
     "common.middleware.ExceptionLoggingMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "auditlog.middleware.AuditlogMiddleware",

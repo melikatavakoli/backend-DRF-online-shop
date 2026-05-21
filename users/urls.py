@@ -11,7 +11,9 @@ router.register(r"consultant", views.ConsultantViewSet, basename="consultant")
 router.register(r"students/top", views.TopStudentViewSet, basename="top-students")
 router.register(r"specialities", views.SpecialityViewSet, basename="speciality")
 router.register(
-    r"student-update", views.StudentPatchProfileViewSet, basename="student_update"
+    r"student-update",
+    views.StudentPatchProfileViewSet,
+    basename="student_update",
 )
 
 urlpatterns = [

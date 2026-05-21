@@ -388,7 +388,10 @@ class StudentUpdateSerializer(GenericModelSerializer):
         if "user.profile_picture" in files:
             user_data["profile_picture"] = files["user.profile_picture"]
         user_serializer = UserProfileUpdateSerializer(
-            instance=instance.user, data=user_data, partial=True, context=self.context
+            instance=instance.user,
+            data=user_data,
+            partial=True,
+            context=self.context,
         )
         user_serializer.is_valid(raise_exception=True)
         user_serializer.save()
