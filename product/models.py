@@ -29,7 +29,9 @@ class Product(GenericModel):
     )
     education_level = models.CharField(max_length=255, blank=True, null=True)
     available_quantity = models.PositiveIntegerField(default=0)
-    image = models.ImageField(upload_to=upload_to_by_date, blank=True, null=True)
+    image = models.ImageField(
+        upload_to=upload_to_by_date, blank=True, null=True
+    )
     type = models.CharField(choices=ProductType, blank=True, null=True)
     slug = models.SlugField(
         max_length=255, unique=True, allow_unicode=True, blank=True, null=True
