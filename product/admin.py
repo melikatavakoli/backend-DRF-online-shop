@@ -34,7 +34,7 @@ class ProductAdmin(BaseAdmin):
         "grade",
         "field",
     )
-    readonly_fields = ("_created_at", "_updated_at", "deleted_at")
+    readonly_fields = ("_created_at", "_updated_at", "_deleted_at")
     ordering = ("title",)
 
     def get_queryset(self, request):
