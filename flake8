@@ -8,10 +8,20 @@ exclude =
     venv,
     .venv,
     .env,
-    migrations,
+    **/migrations/*.py
+    **/migrations/*.pyc
+    !**/migrations/__init__.py
     manage.py
+    */fixtures/*
+    fixtures/*
 
 ignore =
     F403,
     F405,
     E501
+
+
+max-line-length = 78
+
+per-file-ignores =
+    */migrations/*.py:E501

@@ -11,9 +11,7 @@ class Teacher(GenericModel):
     title = models.CharField(max_length=310, blank=True, null=True)
     full_name = models.CharField(max_length=310, blank=True, null=True)
     description = models.CharField(max_length=1000, blank=True, null=True)
-    avatar = models.ImageField(
-        upload_to="upload_to_by_date", blank=True, null=True
-    )
+    avatar = models.ImageField(upload_to="upload_to_by_date", blank=True, null=True)
 
     class Meta:
         verbose_name = "teacher"
@@ -62,7 +60,8 @@ class Field(GenericModel):
 
 class Session(GenericModel):
     course = models.ForeignKey(
-        related_name="sessions",
+        "course.Course",
+        related_name="session_course",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -228,9 +227,7 @@ class Course(GenericModel):
                 if discount_str.endswith("%"):
                     percent = float(discount_str.rstrip("%"))
                     if percent < 0 or percent > 100:
-                        raise ValueError(
-                            "Discount percent must be between 0 and 100"
-                        )
+                        raise ValueError("Discount percent must be between 0 and 100")
                     discount_val = price_val * (percent / 100)
                 else:
                     discount_val = float(discount_str)
