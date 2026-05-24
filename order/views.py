@@ -13,7 +13,7 @@ from .serializers import (
     OrderDetailSerializer,
     OrderSerializer,
 )
-from .types import OrderStatus
+from .choices import OrderStatus
 
 
 class OrderCreateViewSet(viewsets.ModelViewSet):

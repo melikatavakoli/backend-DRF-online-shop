@@ -6,7 +6,7 @@ from persiantools.jdatetime import JalaliDate
 
 from common.models import GenericModel
 from course.models import Course
-from .types import OrderStatus
+from .choices import OrderStatus
 from product.models import Product
 
 User = get_user_model()
