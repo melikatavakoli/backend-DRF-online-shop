@@ -1,9 +1,9 @@
-from invoice.models import Invoice, Item
 from rest_framework import serializers
 from django.db import transaction
 
 from order.serializers import OrderSerializer
 from product.serializers import ProductListSerializer
+from .models import Invoice, Item
 
 
 class InvoiceItemSerializer(serializers.ModelSerializer):
@@ -24,9 +24,7 @@ class InvoiceItemSerializer(serializers.ModelSerializer):
             value = "0"
         try:
             if float(value) <= 0:
-                raise serializers.ValidationError(
-                    "تعداد باید بیشتر از صفر باشد."
-                )
+                raise serializers.ValidationError("تعداد باید بیشتر از صفر باشد.")
         except Exception:
             raise serializers.ValidationError("مقدار تعداد معتبر نیست.")
         return value
@@ -36,23 +34,13 @@ class InvoiceItemSerializer(serializers.ModelSerializer):
             value = "0"
         try:
             if float(value) <= 0:
-                raise serializers.ValidationError(
-                    "قیمت واحد باید بیشتر از صفر باشد."
-                )
+                raise serializers.ValidationError("قیمت واحد باید بیشتر از صفر باشد.")
         except Exception:
-            raise serializers.ValidationError(
-                "مقدار قیمت واحد معتبر نیست."
-            )
+            raise serializers.ValidationError("مقدار قیمت واحد معتبر نیست.")
         return value
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
-    items = InvoiceItemSerializer(
-        many=True, read_only=True, required=False
-    )
-    order = OrderSerializer()
-    product = ProductListSerializer()
-    user = serializers.SerializerMethodField()
     total_amount = serializers.DecimalField(
         max_digits=12,
         decimal_places=2,
@@ -73,6 +61,10 @@ class InvoiceSerializer(serializers.ModelSerializer):
         decimal_places=2,
         read_only=True,
     )
+    items = InvoiceItemSerializer(many=True, read_only=True, required=False)
+    order = OrderSerializer()
+    product = ProductListSerializer()
+    user = serializers.SerializerMethodField()
 
     class Meta:
         model = Invoice
@@ -89,8 +81,6 @@ class InvoiceSerializer(serializers.ModelSerializer):
             "product",
             "order",
             "items",
-        ]
-        read_only_fields = [
             "invoice_number",
             "tracking_code",
             "total_amount",
@@ -111,9 +101,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
 
 class InvoiceWriteSerializer(serializers.ModelSerializer):
-    items = InvoiceItemSerializer(
-        many=True, write_only=True, required=True
-    )
+    items = InvoiceItemSerializer(many=True, write_only=True, required=True)
 
     class Meta:
         model = Invoice
@@ -133,9 +121,7 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if not attrs.get("order"):
-            raise serializers.ValidationError(
-                {"order": "فیلد order الزامی است."}
-            )
+            raise serializers.ValidationError({"order": "فیلد order الزامی است."})
         items_data = attrs.get("items", [])
         if not items_data:
             raise serializers.ValidationError(
@@ -145,17 +131,10 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
-        user = (
-            request.user
-            if request and request.user.is_authenticated
-            else None
-        )
+        user = request.user if request and request.user.is_authenticated else None
         if not user:
-            raise serializers.ValidationError(
-                {"detail": "کاربر احراز هویت نشده است."}
-            )
+            raise serializers.ValidationError({"detail": "کاربر احراز هویت نشده است."})
         items_data = validated_data.pop("items", [])
-
         with transaction.atomic():
             validated_data.pop("user", None)
             invoice = Invoice.objects.create(
@@ -170,20 +149,16 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
                     quantity=item_data.get("quantity", "0"),
                     unit_price=item_data.get("unit_price", "0"),
                     discount_amount=item_data.get("discount_amount", "0"),
-                    discount_percent=item_data.get(
-                        "discount_percent", "0"
-                    ),
+                    discount_percent=item_data.get("discount_percent", "0"),
                 )
         return invoice
 
 
 class InvoiceListSerializer(serializers.ModelSerializer):
-    user = serializers.SerializerMethodField()
-    items = InvoiceItemSerializer(
-        many=True, read_only=True, required=False
-    )
+    items = InvoiceItemSerializer(many=True, read_only=True, required=False)
     order = OrderSerializer(read_only=True)
     product = ProductListSerializer(read_only=True)
+    user = serializers.SerializerMethodField()
 
     class Meta:
         model = Invoice
@@ -238,8 +213,8 @@ class InvoiceAdminSerializer(serializers.ModelSerializer):
             "order",
             "product",
             "final_amount",
+            "invoice_number",
         ]
-        read_only_fields = ["invoice_number"]
 
     def get_user(self, obj):
         if not obj.user:

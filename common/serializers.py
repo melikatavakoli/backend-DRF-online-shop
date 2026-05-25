@@ -16,7 +16,7 @@ class GenericModelSerializer(serializers.ModelSerializer):
     can_delete = serializers.ReadOnlyField()
 
     class Meta:
-        model = None
+        # model = None
         fields = (
             "id",
             "_created_by",

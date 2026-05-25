@@ -1,8 +1,9 @@
 import logging
 from django.contrib.auth import get_user_model
+from rest_framework import serializers
+
 from common.serializers import GenericModelSerializer
 from core.types import RoleType
-from rest_framework import serializers
 from address.models import City, State
 from users.models import (
     Consultant,
@@ -34,7 +35,6 @@ class UserProfileSerializer(GenericModelSerializer):
             "birth_date",
             "age",
             "description",
-            "profile_picture",
             "state",
             "state_lable",
             "city",
@@ -55,7 +55,6 @@ class UserProfileUpdateSerializer(GenericModelSerializer):
             "state",
             "city",
             "country",
-            "profile_picture",
         )
 
 
@@ -74,6 +73,25 @@ class UserSerializer(GenericModelSerializer):
     city_label = serializers.CharField(source="city.title", read_only=True)
     password = serializers.CharField(write_only=True)
 
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "mobile",
+            "email",
+            "is_active",
+            "is_verified",
+            "state_label",
+            "city_label",
+            "password",
+            "state",
+            "birth_date",
+            "city",
+        )
+        
     def validate(self, attrs):
         state_id = attrs.get("state")
         city_id = attrs.get("city")

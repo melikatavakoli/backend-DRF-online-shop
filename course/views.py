@@ -8,6 +8,7 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from common.paginations import CustomLimitOffsetPagination
 from course.filters import CourseFilter
 from .models import (
@@ -23,28 +24,28 @@ from .models import (
     TagCourse,
     Teacher,
 )
-from .serializers import (
-    CategorySerializer,
-    CourseCreateSerializer,
-    CourseDetailSerializer,
-    CourseFeatureSerializer,
-    CourseLearningSerializer,
-    CourseListSerializer,
-    CourseStudentsSerializer,
-    CourseUpdateSerializer,
-    FieldSerializer,
-    GradeSerializer,
-    TagSerializer,
-    UpdateSessionProgresseSerializer,
-    SessionSerializer,
-    SubjectSerializer,
-    TeacherSerializer,
-)
+from . import serializers
+#     CategorySerializer,
+#     CourseCreateSerializer,
+#     CourseDetailSerializer,
+#     CourseFeatureSerializer,
+#     CourseLearningSerializer,
+#     CourseListSerializer,
+#     CourseStudentsSerializer,
+#     CourseUpdateSerializer,
+#     FieldSerializer,
+#     GradeSerializer,
+#     TagSerializer,
+#     UpdateSessionProgresseSerializer,
+#     SessionSerializer,
+#     SubjectSerializer,
+#     TeacherSerializer,
+# )
 
 
 class TeacherViewSet(viewsets.ModelViewSet):
     queryset = Teacher.objects.all()
-    serializer_class = TeacherSerializer
+    serializer_class = serializers.TeacherSerializer
     pagination_class = CustomLimitOffsetPagination
 
     def get_permissions(self):
@@ -55,7 +56,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
 
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
-    serializer_class = SubjectSerializer
+    serializer_class = serializers.SubjectSerializer
     pagination_class = CustomLimitOffsetPagination
 
     def get_permissions(self):
@@ -66,7 +67,7 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
 class GradeViewSet(viewsets.ModelViewSet):
     queryset = Grade.objects.all()
-    serializer_class = GradeSerializer
+    serializer_class = serializers.GradeSerializer
     pagination_class = CustomLimitOffsetPagination
 
     def get_permissions(self):
@@ -77,7 +78,7 @@ class GradeViewSet(viewsets.ModelViewSet):
 
 class FieldViewSet(viewsets.ModelViewSet):
     queryset = Field.objects.all()
-    serializer_class = FieldSerializer
+    serializer_class = serializers.FieldSerializer
     pagination_class = CustomLimitOffsetPagination
 
     def get_permissions(self):
@@ -88,7 +89,7 @@ class FieldViewSet(viewsets.ModelViewSet):
 
 class SessionViewSet(viewsets.ModelViewSet):
     queryset = Session.objects.all()
-    serializer_class = SessionSerializer
+    serializer_class = serializers.SessionSerializer
     pagination_class = CustomLimitOffsetPagination
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
@@ -106,7 +107,7 @@ class SessionViewSet(viewsets.ModelViewSet):
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = CourseCategory.objects.all()
-    serializer_class = CategorySerializer
+    serializer_class = serializers.CategorySerializer
     pagination_class = CustomLimitOffsetPagination
 
     def get_permissions(self):
@@ -146,10 +147,10 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == "list":
-            return CourseListSerializer
+            return serializers.CourseListSerializer
         if self.action == "retrieve":
-            return CourseDetailSerializer
-        return CourseCreateSerializer
+            return serializers.CourseDetailSerializer
+        return serializers.CourseCreateSerializer
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -163,7 +164,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
 
 class UpdateSessionProgressView(generics.UpdateAPIView):
-    serializer_class = UpdateSessionProgresseSerializer
+    serializer_class = serializers.UpdateSessionProgresseSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
@@ -179,12 +180,12 @@ class CourseDetailBySlugAPIView(generics.RetrieveAPIView):
         "category__session", "grade", "field"
     ).select_related("subject", "teacher")
     lookup_field = "slug"
-    serializer_class = CourseDetailSerializer
+    serializer_class = serializers.CourseDetailSerializer
 
 
 class CourseUpdateBySlugAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = CourseUpdateSerializer
+    serializer_class = serializers.CourseUpdateSerializer
     lookup_field = "pk"
     parser_classes = (MultiPartParser, FormParser)
 
@@ -196,12 +197,12 @@ class CourseUpdateBySlugAPIView(generics.UpdateAPIView):
 class SessionDetailBySlugAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Session.objects.all()
-    serializer_class = SessionSerializer
+    serializer_class = serializers.SessionSerializer
     lookup_field = "slug"
 
 
 class CourseSessionsAPIView(APIView):
-    serializer_class = SessionSerializer
+    serializer_class = serializers.SessionSerializer
     permission_classes = [IsAuthenticated]
 
     def get(self, request, course_id):
@@ -210,7 +211,7 @@ class CourseSessionsAPIView(APIView):
         sessions = Session.objects.filter(session_category__in=categories).order_by(
             "session_no"
         )
-        serializer = SessionSerializer(
+        serializer = serializers.SessionSerializer(
             sessions, many=True, context={"request": request}
         )
         return Response(serializer.data)
@@ -218,19 +219,19 @@ class CourseSessionsAPIView(APIView):
 
 class CourseStudentsAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = CourseStudentsSerializer
+    serializer_class = serializers.CourseStudentsSerializer
 
     def get(self, request, course_id):
         course = get_object_or_404(
             Course.objects.prefetch_related("users"), id=course_id
         )
-        serializer = CourseStudentsSerializer(course)
+        serializer = serializers.CourseStudentsSerializer(course)
         return Response(serializer.data)
 
 
 class MyCoursesAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = CourseListSerializer
+    serializer_class = serializers.CourseListSerializer
 
     def get(self, request):
         courses = (
@@ -246,14 +247,13 @@ class MyCoursesAPIView(APIView):
             .filter(users__user=request.user)
             .distinct()
         )
-        serializer = CourseListSerializer(
+        serializer = serializers.CourseListSerializer(
             courses, many=True, context={"request": request}
         )
         return Response(serializer.data)
 
 
 class CourseFeatureViewSet(viewsets.ModelViewSet):
-    # serializer_class = FeaturesSerializer
     queryset = TagCourse.objects.all()
     pagination_class = CustomLimitOffsetPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
@@ -275,7 +275,7 @@ class CourseFeatureViewSet(viewsets.ModelViewSet):
                 grouped_data[course_id] = {"course": course_id, "text": []}
             grouped_data[course_id]["text"].append(obj.text)
         result = list(grouped_data.values())
-        serializer = CourseFeatureSerializer(result, many=True)
+        serializer = serializers.CourseFeatureSerializer(result, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=["patch"], url_path="update-text")
@@ -294,7 +294,7 @@ class CourseFeatureMultiCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = CourseFeatureSerializer(data=request.data)
+        serializer = serializers.CourseFeatureSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -306,7 +306,7 @@ class CourseFeatureMultiCreateAPIView(APIView):
 
 class CourseLearningViewSet(viewsets.ModelViewSet):
     queryset = CourseLearning.objects.all()
-    serializer_class = CourseLearningSerializer
+    serializer_class = serializers.CourseLearningSerializer
     pagination_class = CustomLimitOffsetPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = [
@@ -327,7 +327,7 @@ class CourseLearningViewSet(viewsets.ModelViewSet):
                 grouped_data[course_id] = {"course": course_id, "text": []}
             grouped_data[course_id]["text"].append(obj.text)
         result = list(grouped_data.values())
-        serializer = CourseFeatureSerializer(result, many=True)
+        serializer = serializers.CourseFeatureSerializer(result, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=["patch"], url_path="update-text")
@@ -349,7 +349,7 @@ class CourseLearningsMultiCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = CourseLearningSerializer(data=request.data)
+        serializer = serializers.CourseLearningSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -361,7 +361,7 @@ class CourseLearningsMultiCreateAPIView(APIView):
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = TagCourse.objects.all()
-    serializer_class = CourseLearningSerializer
+    serializer_class = serializers.CourseLearningSerializer
     pagination_class = CustomLimitOffsetPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = ["course_id"]
@@ -380,7 +380,7 @@ class TagViewSet(viewsets.ModelViewSet):
                 grouped_data[course_id] = {"course": course_id, "text": []}
             grouped_data[course_id]["text"].append(obj.text)
         result = list(grouped_data.values())
-        serializer = CourseFeatureSerializer(result, many=True)
+        serializer = serializers.CourseFeatureSerializer(result, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=["patch"], url_path="update-text")
@@ -399,7 +399,7 @@ class CourseTagMultiCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = TagSerializer(data=request.data)
+        serializer = serializers.TagSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(
