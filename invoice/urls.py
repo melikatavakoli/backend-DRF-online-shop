@@ -1,5 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
 from . import views
 
 router = DefaultRouter()
@@ -13,7 +14,7 @@ urlpatterns = [
         name="admin_list_invoice",
     ),
     path(
-        "cancel/<uuid:invoice_id>/",
+        "cancel-<uuid:invoice_id>/",
         views.CancelInvoiceAPIView.as_view(),
         name="admin_cancel_invoice",
     ),

@@ -52,9 +52,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     @admin.action(description="Mark selected invoices as unpaid")
     def mark_as_unpaid(self, request, queryset):
         updated = queryset.update(status="unpaid")
-        self.message_user(
-            request, f"{updated} invoice(s) marked as unpaid."
-        )
+        self.message_user(request, f"{updated} invoice(s) marked as unpaid.")
 
 
 @admin.register(Item)

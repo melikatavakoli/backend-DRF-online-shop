@@ -7,7 +7,7 @@ from drf_spectacular.views import (
 )
 
 urlpatterns = [
-    path("adminpanel/", admin.site.urls),
+    path("api/v1/adminpanel/", admin.site.urls),
     path(
         "api/v1/schema/",
         SpectacularAPIView.as_view(authentication_classes=[], permission_classes=[]),

@@ -12,6 +12,9 @@ User = get_user_model()
 
 
 class Invoice(GenericModel):
+    invoice_number = models.CharField(
+        max_length=50, unique=True, blank=True, null=True, editable=False
+    )
     user = models.ForeignKey(
         User,
         related_name="invoice_user",
@@ -36,22 +39,11 @@ class Invoice(GenericModel):
         null=True,
         blank=True,
     )
-    invoice_number = models.CharField(
-        max_length=50, unique=True, blank=True, null=True, editable=False
-    )
     tracking_code = models.CharField(max_length=50, blank=True, null=True)
-    issue_date = models.DateTimeField(
-        default=timezone.now, blank=True, null=True
-    )
-    invoice_date = models.DateTimeField(
-        default=timezone.now, blank=True, null=True
-    )
-    fiscal_memory_number = models.CharField(
-        max_length=100, blank=True, null=True
-    )
-    fiscal_memory_serial = models.CharField(
-        max_length=100, blank=True, null=True
-    )
+    issue_date = models.DateTimeField(default=timezone.now, blank=True, null=True)
+    invoice_date = models.DateTimeField(default=timezone.now, blank=True, null=True)
+    fiscal_memory_number = models.CharField(max_length=100, blank=True, null=True)
+    fiscal_memory_serial = models.CharField(max_length=100, blank=True, null=True)
     pos_serial = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     status = models.CharField(
@@ -59,6 +51,7 @@ class Invoice(GenericModel):
         choices=InvoiceStatus.choices,
         default=InvoiceStatus.UNPAID,
     )
+    final_amount = models.CharField(max_length=100, blank=True, null=True, default="0")
 
     @property
     def final_amount(self):
@@ -71,9 +64,7 @@ class Invoice(GenericModel):
                 discount_percent = Decimal(item.discount_percent or "0")
                 discount_amount = Decimal(item.discount_amount or "0")
                 if discount_percent > 0:
-                    discount_amount = total_price * (
-                        discount_percent / Decimal("100")
-                    )
+                    discount_amount = total_price * (discount_percent / Decimal("100"))
                 total_after_discount = total_price - discount_amount
                 tax = total_after_discount * Decimal("0.09")
                 final_price_item = total_after_discount + tax
@@ -115,17 +106,21 @@ class Item(GenericModel):
     )
     row_number = models.PositiveIntegerField(null=True, blank=True)
     product_code = models.CharField(max_length=50, blank=True, null=True)
-    description = models.TextField(null=True, blank=True)
-    quantity = models.CharField(max_length=100, blank=True, null=True)
-    unit_price = models.CharField(max_length=100, blank=True, null=True)
+    description = models.CharField(max_length=1000, null=True, blank=True)
+    quantity = models.CharField(max_length=100, blank=True, default="0")
+    unit_price = models.CharField(
+        max_length=100,
+        default="0",
+        blank=True,
+    )
     discount_amount = models.CharField(
-        max_length=100, blank=True, null=True
+        max_length=100,
+        blank=True,
+        default="0",
     )
-    discount_percent = models.CharField(
-        max_length=100, blank=True, null=True
-    )
-    total_price = models.CharField(max_length=100, blank=True, null=True)
-    final_price = models.CharField(max_length=100, blank=True, null=True)
+    discount_percent = models.CharField(max_length=100, blank=True, default="0")
+    total_price = models.CharField(max_length=100, blank=True, default="0")
+    final_price = models.CharField(max_length=100, blank=True, default="0")
 
     class Meta:
         verbose_name_plural = "invoice_items"

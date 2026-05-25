@@ -35,9 +35,7 @@ class InvoiceAPIView(generics.CreateAPIView):
     serializer_class = InvoiceWriteSerializer
 
     def perform_create(self, serializer):
-        serializer.save(
-            user=self.request.user, created_by=self.request.user
-        )
+        serializer.save(user=self.request.user, created_by=self.request.user)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -86,9 +84,7 @@ class UserInvoiceAPIView(generics.ListAPIView):
         if not user.is_authenticated:
             return Invoice.objects.none()
         if getattr(user, "role", None) == "user":
-            return Invoice.objects.filter(user=user).order_by(
-                "-created_at"
-            )
+            return Invoice.objects.filter(user=user).order_by("-created_at")
         return Invoice.objects.none()
 
     def get_serializer_context(self):
