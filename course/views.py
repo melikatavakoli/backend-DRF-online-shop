@@ -25,22 +25,6 @@ from .models import (
     Teacher,
 )
 from . import serializers
-#     CategorySerializer,
-#     CourseCreateSerializer,
-#     CourseDetailSerializer,
-#     CourseFeatureSerializer,
-#     CourseLearningSerializer,
-#     CourseListSerializer,
-#     CourseStudentsSerializer,
-#     CourseUpdateSerializer,
-#     FieldSerializer,
-#     GradeSerializer,
-#     TagSerializer,
-#     UpdateSessionProgresseSerializer,
-#     SessionSerializer,
-#     SubjectSerializer,
-#     TeacherSerializer,
-# )
 
 
 class TeacherViewSet(viewsets.ModelViewSet):

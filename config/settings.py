@@ -42,7 +42,7 @@ THIRD_PARTY_APPS = [
     "drf_spectacular_sidecar",
 ]
 
-LOCAL_APPS = ["address", "core", "users", "course", "product", "order", "invoice"]
+LOCAL_APPS = ["address", "core", "users", "course", "product", "order", "invoice", "transaction"]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
