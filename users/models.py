@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from address.models import Branch
 from common.models import GenericModel
-from users.types import (
+from users.choices import (
     EducationChoices,
     FieldChoices,
     GradeChoices,

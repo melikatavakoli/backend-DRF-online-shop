@@ -4,7 +4,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
 from users.serializers import StudentListSerializer
-from users.types import FieldChoices, GradeChoices
+from users.choices import FieldChoices, GradeChoices
 
 
 def build_student_export_payload(queryset):

@@ -91,7 +91,7 @@ class UserSerializer(GenericModelSerializer):
             "birth_date",
             "city",
         )
-        
+
     def validate(self, attrs):
         state_id = attrs.get("state")
         city_id = attrs.get("city")
