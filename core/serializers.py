@@ -9,7 +9,7 @@ from rest_framework import serializers
 from common.serializers import GenericModelSerializer
 from core.models import BaseUser
 from .tasks import send_registry_sms, send_verification_sms
-from core.types import RoleType, StatusType
+from core.choices import RoleType, StatusType
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import RegexValidator
 
@@ -222,15 +222,3 @@ class ResetPasswordSerializer(serializers.Serializer):
         redis_conn = get_redis_connection("default")
         redis_conn.delete(f"verification_code:{self.validated_data['mobile']}")
         return user
-
-
-class UserListSerializer(GenericModelSerializer):
-    full_name = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = BaseUser
-        fields = GenericModelSerializer.Meta.fields + (
-            "mobile",
-            "full_name",
-            "role",
-        )
