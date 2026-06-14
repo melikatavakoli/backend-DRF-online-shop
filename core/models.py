@@ -2,7 +2,7 @@ from address.models import City, Country, State
 from common.format import calculate_age, common_datetime_str
 from common.managers import UserManager
 from django.db import models
-from core.types import RoleType, StatusType
+from core.choices import RoleType, StatusType
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils import timezone
 from uuid import uuid4
@@ -35,7 +35,6 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     is_verified = models.BooleanField(default=False)
     is_email_verified = models.BooleanField(default=False)
     last_login_ip = models.GenericIPAddressField(null=True, blank=True)
-    is_staff = models.BooleanField(default=False)
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
     status = models.CharField(
@@ -102,10 +101,6 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.role == RoleType.STAFF
-
-    @property
-    def is_staff(self):
-        return self.role == RoleType.VENDOR
 
     @property
     def is_staff_user(self):
