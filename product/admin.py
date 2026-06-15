@@ -28,7 +28,12 @@ class ProductAdmin(BaseAdmin):
         "slug",
         "type",
     )
-    search_fields = ("title", "description", "category__name", "education_level")
+    search_fields = (
+        "title",
+        "description",
+        "category__name",
+        "education_level",
+    )
     list_filter = (SoftDeleteListFilter, "category", "type", "grade", "field")
     filter_horizontal = (
         "grade",
