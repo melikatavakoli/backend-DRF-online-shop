@@ -160,7 +160,11 @@ class Branch(models.Model):
     mobile = models.CharField(max_length=11, blank=True)
     location = LocationField(based_fields=["address"], zoom=15, blank=True, null=True)
     city = models.ForeignKey(
-        City, related_name="branches", on_delete=models.CASCADE, null=True, blank=True
+        City,
+        related_name="branches",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     created_at = models.DateTimeField(verbose_name="created at", default=timezone.now)
     updated_at = models.DateTimeField(verbose_name="updated at", auto_now=True)

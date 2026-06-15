@@ -40,10 +40,18 @@ class Invoice(GenericModel):
         blank=True,
     )
     tracking_code = models.CharField(max_length=50, blank=True, null=True)
-    issue_date = models.DateTimeField(default=timezone.now, blank=True, null=True)
-    invoice_date = models.DateTimeField(default=timezone.now, blank=True, null=True)
-    fiscal_memory_number = models.CharField(max_length=100, blank=True, null=True)
-    fiscal_memory_serial = models.CharField(max_length=100, blank=True, null=True)
+    issue_date = models.DateTimeField(
+        default=timezone.now, blank=True, null=True
+    )
+    invoice_date = models.DateTimeField(
+        default=timezone.now, blank=True, null=True
+    )
+    fiscal_memory_number = models.CharField(
+        max_length=100, blank=True, null=True
+    )
+    fiscal_memory_serial = models.CharField(
+        max_length=100, blank=True, null=True
+    )
     pos_serial = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     status = models.CharField(
@@ -51,7 +59,6 @@ class Invoice(GenericModel):
         choices=InvoiceStatus.choices,
         default=InvoiceStatus.UNPAID,
     )
-    final_amount = models.CharField(max_length=100, blank=True, null=True, default="0")
 
     @property
     def final_amount(self):
@@ -64,7 +71,9 @@ class Invoice(GenericModel):
                 discount_percent = Decimal(item.discount_percent or "0")
                 discount_amount = Decimal(item.discount_amount or "0")
                 if discount_percent > 0:
-                    discount_amount = total_price * (discount_percent / Decimal("100"))
+                    discount_amount = total_price * (
+                        discount_percent / Decimal("100")
+                    )
                 total_after_discount = total_price - discount_amount
                 tax = total_after_discount * Decimal("0.09")
                 final_price_item = total_after_discount + tax
@@ -80,18 +89,6 @@ class Invoice(GenericModel):
 
     def __str__(self):
         return f"{self.invoice_number} - {self.user}"
-
-    def save(self, *args, **kwargs):
-        from invoice.services import (
-            generate_invoice_number,
-            generate_tracking_code,
-        )
-
-        if not self.invoice_number:
-            self.invoice_number = generate_invoice_number()
-        if not self.tracking_code:
-            self.tracking_code = generate_tracking_code()
-        super().save(*args, **kwargs)
 
 
 class Item(GenericModel):
@@ -118,7 +115,9 @@ class Item(GenericModel):
         blank=True,
         default="0",
     )
-    discount_percent = models.CharField(max_length=100, blank=True, default="0")
+    discount_percent = models.CharField(
+        max_length=100, blank=True, default="0"
+    )
     total_price = models.CharField(max_length=100, blank=True, default="0")
     final_price = models.CharField(max_length=100, blank=True, default="0")
 

@@ -24,7 +24,9 @@ class InvoiceItemSerializer(serializers.ModelSerializer):
             value = "0"
         try:
             if float(value) <= 0:
-                raise serializers.ValidationError("تعداد باید بیشتر از صفر باشد.")
+                raise serializers.ValidationError(
+                    "تعداد باید بیشتر از صفر باشد."
+                )
         except Exception:
             raise serializers.ValidationError("مقدار تعداد معتبر نیست.")
         return value
@@ -34,7 +36,9 @@ class InvoiceItemSerializer(serializers.ModelSerializer):
             value = "0"
         try:
             if float(value) <= 0:
-                raise serializers.ValidationError("قیمت واحد باید بیشتر از صفر باشد.")
+                raise serializers.ValidationError(
+                    "قیمت واحد باید بیشتر از صفر باشد."
+                )
         except Exception:
             raise serializers.ValidationError("مقدار قیمت واحد معتبر نیست.")
         return value
@@ -121,7 +125,9 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if not attrs.get("order"):
-            raise serializers.ValidationError({"order": "فیلد order الزامی است."})
+            raise serializers.ValidationError(
+                {"order": "فیلد order الزامی است."}
+            )
         items_data = attrs.get("items", [])
         if not items_data:
             raise serializers.ValidationError(
@@ -131,9 +137,15 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
-        user = request.user if request and request.user.is_authenticated else None
+        user = (
+            request.user
+            if request and request.user.is_authenticated
+            else None
+        )
         if not user:
-            raise serializers.ValidationError({"detail": "کاربر احراز هویت نشده است."})
+            raise serializers.ValidationError(
+                {"detail": "کاربر احراز هویت نشده است."}
+            )
         items_data = validated_data.pop("items", [])
         with transaction.atomic():
             validated_data.pop("user", None)
