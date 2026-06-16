@@ -7,9 +7,7 @@ from .models import Order
 
 class OrderFilter(BaseFilter, FilterSet):
     status = django_filters.CharFilter(method="filter_status")
-    is_successful = django_filters.BooleanFilter(
-        method="filter_is_successful"
-    )
+    is_successful = django_filters.BooleanFilter(method="filter_is_successful")
     order_no = django_filters.CharFilter(method="filter_order_no")
     course_grade = django_filters.CharFilter(method="filter_course_grade")
     course_field = django_filters.CharFilter(method="filter_course_field")
@@ -38,14 +36,10 @@ class OrderFilter(BaseFilter, FilterSet):
         return self.filter_text(queryset, "order_no", value)
 
     def filter_course_grade(self, queryset, name, value):
-        return self.filter_comma_separated(
-            queryset, "items__course__grade", value
-        )
+        return self.filter_comma_separated(queryset, "items__course__grade", value)
 
     def filter_course_field(self, queryset, name, value):
-        return self.filter_comma_separated(
-            queryset, "items__course__field", value
-        )
+        return self.filter_comma_separated(queryset, "items__course__field", value)
 
     def filter_course(self, queryset, name, value):
         return queryset.filter(items__course__id=value)

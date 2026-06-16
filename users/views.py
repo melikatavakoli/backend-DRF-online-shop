@@ -29,7 +29,7 @@ from users.serializers import (
     UserProfileSerializer,
     UserProfileUpdateSerializer,
 )
-from core.types import RoleType
+from core.choices import RoleType
 
 
 class ProfileView(generics.RetrieveAPIView):

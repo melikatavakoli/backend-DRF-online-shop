@@ -41,9 +41,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         Order.objects.all()
         .select_related("user", "done_by")
         .prefetch_related(
-            Prefetch(
-                "items", queryset=OrderItem.objects.select_related("product")
-            )
+            Prefetch("items", queryset=OrderItem.objects.select_related("product"))
         )
     )
 
@@ -66,9 +64,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             )
         if order.user != user and not user.is_staff:
             return Response(
-                {
-                    "detail": "You do not have permission to cancel this order."
-                },
+                {"detail": "You do not have permission to cancel this order."},
                 status=status.HTTP_403_FORBIDDEN,
             )
         order.status = OrderStatus.CANCELED

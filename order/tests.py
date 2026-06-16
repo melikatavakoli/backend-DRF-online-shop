@@ -59,9 +59,7 @@ class OrderModelsTests(TestCase):
 
     def test_order_item_invalid_both_product_and_course(self):
         order = Order.objects.create(user=self.user)
-        item = OrderItem(
-            order=order, product=self.product1, course=self.course1
-        )
+        item = OrderItem(order=order, product=self.product1, course=self.course1)
         with self.assertRaises(ValidationError):
             item.full_clean()
 
@@ -73,15 +71,11 @@ class OrderModelsTests(TestCase):
 
     def test_order_totals_with_mixed_items(self):
         order = Order.objects.create(user=self.user)
-        OrderItem.objects.create(
-            order=order, product=self.product1, quantity=2
-        )
+        OrderItem.objects.create(order=order, product=self.product1, quantity=2)
         OrderItem.objects.create(order=order, course=self.course1, quantity=1)
 
         self.assertEqual(order.total_price, Decimal("400"))
         self.assertEqual(order.total_discount, Decimal("40"))
         self.assertEqual(order.payable_amount, Decimal("360"))
         self.assertEqual(order.total_quantity, 3)
-        self.assertEqual(
-            order.product_types, [""]
-        )  # چون type محصول پیش‌فرض ""
+        self.assertEqual(order.product_types, [""])  # چون type محصول پیش‌فرض ""

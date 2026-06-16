@@ -17,9 +17,7 @@ class OrderItemCreateSerializer(serializers.ModelSerializer):
         course = attrs.get("course")
         if bool(product) == bool(course):
             raise serializers.ValidationError(
-                {
-                    "non_field_errors": "Provide either product or course, not both."
-                }
+                {"non_field_errors": "Provide either product or course, not both."}
             )
         return attrs
 
@@ -73,9 +71,7 @@ class OrderSerializer(GenericModelSerializer):
     total_discount = serializers.FloatField(read_only=True)
     payable_amount = serializers.FloatField(read_only=True)
     total_quantity = serializers.IntegerField(read_only=True)
-    product_types = serializers.ListField(
-        child=serializers.CharField(), read_only=True
-    )
+    product_types = serializers.ListField(child=serializers.CharField(), read_only=True)
 
     class Meta:
         model = Order
@@ -114,9 +110,7 @@ class OrderDetailSerializer(GenericModelSerializer):
     total_discount = serializers.FloatField(read_only=True)
     payable_amount = serializers.FloatField(read_only=True)
     total_quantity = serializers.IntegerField(read_only=True)
-    product_types = serializers.ListField(
-        child=serializers.CharField(), read_only=True
-    )
+    product_types = serializers.ListField(child=serializers.CharField(), read_only=True)
 
     class Meta:
         model = Order

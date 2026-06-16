@@ -43,7 +43,9 @@ class Order(GenericModel):
         db_table = "order"
 
     def __str__(self):
-        return f"Order #{self.order_no} by {self.user.get_full_name() or self.user.email}"
+        return (
+            f"Order #{self.order_no} by {self.user.get_full_name() or self.user.email}"
+        )
 
     def save(self, *args, **kwargs):
         if self.status in [OrderStatus.SHIPPED, OrderStatus.DELIVERED]:
@@ -81,11 +83,7 @@ class Order(GenericModel):
     @property
     def product_types(self):
         return list(
-            {
-                item.product.type
-                for item in self.items.all()
-                if item.product.type
-            }
+            {item.product.type for item in self.items.all() if item.product.type}
         )
 
 
@@ -132,14 +130,10 @@ class OrderItem(GenericModel):
 
     def clean(self):
         if self.product and self.course:
-            raise ValidationError(
-                "OrderItem cannot have both product and course"
-            )
+            raise ValidationError("OrderItem cannot have both product and course")
 
         if not self.product and not self.course:
-            raise ValidationError(
-                "OrderItem must have either product or course"
-            )
+            raise ValidationError("OrderItem must have either product or course")
 
     @property
     def total_price(self):
