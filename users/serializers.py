@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from common.serializers import GenericModelSerializer
-from core.types import RoleType
+from core.choices import RoleType
 from address.models import City, State
 from users.models import (
     Consultant,
