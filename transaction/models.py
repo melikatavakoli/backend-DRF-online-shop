@@ -22,16 +22,16 @@ class PaymentReceipt(GenericModel):
         verbose_name="user",
         on_delete=models.CASCADE,
         null=True,
-        blank=True
+        blank=True,
     )
-    image = models.ImageField(upload_to='media',blank=True,null=True)
+    image = models.ImageField(upload_to="media", blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    description = models.TextField(blank=True,null=True)
+    description = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "payment_receipt"
         verbose_name = "payment_receipt"
-        db_table = 'payment_receipt'
+        db_table = "payment_receipt"
 
     def __str__(self):
         return f"Receipt {self.user} - {self.uploaded_at}"
@@ -44,7 +44,7 @@ class Transaction(GenericModel):
         verbose_name="user",
         on_delete=models.CASCADE,
         null=True,
-        blank=True
+        blank=True,
     )
     order = models.ForeignKey(
         Order,
@@ -52,7 +52,7 @@ class Transaction(GenericModel):
         verbose_name="order",
         on_delete=models.CASCADE,
         null=True,
-        blank=True
+        blank=True,
     )
     invoice = models.ForeignKey(
         Invoice,
@@ -60,7 +60,7 @@ class Transaction(GenericModel):
         verbose_name="invoice",
         on_delete=models.CASCADE,
         null=True,
-        blank=True
+        blank=True,
     )
     cart = models.ForeignKey(
         Cart,
@@ -68,7 +68,7 @@ class Transaction(GenericModel):
         verbose_name="cart",
         on_delete=models.CASCADE,
         null=True,
-        blank=True
+        blank=True,
     )
     payment_receipt = models.ForeignKey(
         PaymentReceipt,
@@ -76,24 +76,32 @@ class Transaction(GenericModel):
         related_name="reciept_transactions",
         verbose_name="payment_receipt",
         null=True,
-        blank=True
+        blank=True,
     )
     transaction_no = models.CharField(
-        max_length=50,
-        unique=True,
+        max_length=50, unique=True, blank=True, null=True, editable=False
+    )
+    amount = models.DecimalField(
+        max_digits=15, decimal_places=2, default="0", blank=True
+    )
+    bank_name = models.CharField(max_length=50, blank=True, null=True)
+    card_number = models.CharField(max_length=50, blank=True, null=True)
+    ref_number = models.CharField(max_length=50, blank=True, null=True)
+    track_id = models.CharField(max_length=300, blank=True, null=True)
+    gateway = models.CharField(max_length=50, blank=True, null=True)
+    description = models.CharField(
+        max_length=300,
         blank=True,
         null=True,
-        editable=False
     )
-    amount = models.DecimalField(max_digits=15,decimal_places=2, default="0",blank=True)
-    bank_name = models.CharField(max_length=50,blank=True,null=True)
-    card_number = models.CharField(max_length=50,blank=True,null=True)
-    ref_number = models.CharField(max_length=50,blank=True,null=True)
-    track_id = models.CharField(max_length=300,blank=True,null=True)
-    gateway = models.CharField(max_length=50,blank=True,null=True)
-    description = models.CharField(max_length=300, blank=True,null=True,)
-    status = models.CharField(max_length=20,choices=TransactionStatus.choices,default=TransactionStatus.PENDING)
-    stock_reduced = models.BooleanField(default=False,)
+    status = models.CharField(
+        max_length=20,
+        choices=TransactionStatus.choices,
+        default=TransactionStatus.PENDING,
+    )
+    stock_reduced = models.BooleanField(
+        default=False,
+    )
 
     class Meta:
         verbose_name = "transaction"
@@ -111,19 +119,19 @@ class Transaction(GenericModel):
         if not self.is_successful or not self.order or self.stock_reduced:
             return
         with db_transaction.atomic():
-            for item in self.order.items.select_related('product').select_for_update():
+            for item in self.order.items.select_related("product").select_for_update():
                 product: Product = item.product
                 if product.available_quantity >= item.quantity:
                     product.available_quantity -= item.quantity
-                    product.save(update_fields=['available_quantity'])
+                    product.save(update_fields=["available_quantity"])
                 else:
                     raise ValueError(
                         f"Insufficient stock for product {product.name}: "
                         f"available {product.available_quantity} - requested {item.quantity}"
                     )
-            
+
             self.stock_reduced = True
-            self.save(update_fields=['stock_reduced'])
+            self.save(update_fields=["stock_reduced"])
 
     @property
     def calculated_amount(self):
@@ -135,12 +143,16 @@ class Transaction(GenericModel):
     @property
     def fee(self):
         """Transaction fee: 1% of transaction amount"""
-        return (self.calculated_amount * Decimal("0.01")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        return (self.calculated_amount * Decimal("0.01")).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
 
     @property
     def total_amount_with_fee(self):
         """Total transaction amount + fee"""
-        return (self.calculated_amount + self.fee).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        return (self.calculated_amount + self.fee).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
 
     @property
     def is_successful(self):
@@ -156,6 +168,6 @@ class Transaction(GenericModel):
         super().save(*args, **kwargs)
         if self.invoice and self.is_successful:
             self.invoice.status = InvoiceStatus.paid
-            self.invoice.save(update_fields=['status'])
+            self.invoice.save(update_fields=["status"])
         if self.is_successful and self.order and not self.stock_reduced:
             self.reduce_product_stock()
