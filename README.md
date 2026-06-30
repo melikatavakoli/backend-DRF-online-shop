@@ -21,32 +21,6 @@ Designed with **clean architecture**, **async processing**, **WebSockets**, and 
 
 ---
 
-## 🧱 Architecture at a Glance
-
-```text
-project/
-│
-├── config/           # Global settings, WSGI/ASGI config
-├── common/           # Shared utilities, base classes, mixins
-│
-├── core/             # Auth & user management
-├── address/          # Location data
-│
-├── product/          # Product catalog
-├── cart/             # Shopping cart
-├── order/            # Order processing
-├── invoice/          # Billing & invoices
-├── transaction/      # Payment transactions
-│
-├── blog/             # Blog system
-├── notifications/    # Push/in-app notifications
-│
-├── chat/             # Real-time WebSocket chat
-├── tickets/          # Support tickets
-│
-└── dashboard/        # Admin analytics
-```
-
 ---
 
 ## 🛠 Tech Stack
@@ -130,32 +104,6 @@ celery -A config beat -l info
 
 # Monitoring (Flower)
 celery -A config flower
-```
-
----
-
-## 🔌 WebSockets & Realtime
-
-- 💬 Live chat messaging
-- 🎫 Real-time ticket updates
-- 🔔 Instant notifications
-
----
-
-## 🧪 Testing
-
-```bash
-pytest
-```
-
----
-
-## 📦 Fixtures (Sample Data)
-
-```bash
-python manage.py loaddata address/fixtures/address.json
-python manage.py loaddata product/fixtures/products.json
-python manage.py loaddata blog/fixtures/posts.json
 ```
 
 ---
