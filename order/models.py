@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from persiantools.jdatetime import JalaliDate
 
+from cart.models import Cart
 from common.models import GenericModel
 from course.models import Course
 from .choices import OrderStatus
@@ -23,7 +24,6 @@ class Order(GenericModel):
     user = models.ForeignKey(
         User,
         related_name="user_orders",
-        verbose_name="user",
         on_delete=models.CASCADE,
         blank=True,
         default="",
@@ -31,10 +31,16 @@ class Order(GenericModel):
     done_by = models.ForeignKey(
         User,
         related_name="order_done",
-        verbose_name="done by",
         on_delete=models.CASCADE,
         blank=True,
         null=True,
+    )
+    cart = models.OneToOneField(
+        Cart,
+        related_name="checkout_order",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
 
     class Meta:
